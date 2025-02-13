@@ -69,7 +69,15 @@ executable pokemon-game
 
     -- Other library packages from which modules are imported.
     build-depends:    base >= 4.17 && < 5,
-                           gtk3 >= 0.15.0
+                           gi-gtk4,
+                           haskell-gi-base,
+                           filepath,
+                           gi-cairo,
+                           gi-gdk3,
+                           gi-gdkpixbuf,
+                           gi-gio,
+                           haskell-gi-base,
+                           text
 
     -- Directories containing source files.
     hs-source-dirs:   app

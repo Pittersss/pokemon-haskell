@@ -20,16 +20,86 @@
   (major1) == 4 && (major2) <  17 || \
   (major1) == 4 && (major2) == 17 && (minor) <= 0)
 #endif /* MIN_VERSION_base */
-/* package gtk3-0.15.9 */
-#ifndef VERSION_gtk3
-#define VERSION_gtk3 "0.15.9"
-#endif /* VERSION_gtk3 */
-#ifndef MIN_VERSION_gtk3
-#define MIN_VERSION_gtk3(major1,major2,minor) (\
+/* package filepath-1.4.2.2 */
+#ifndef VERSION_filepath
+#define VERSION_filepath "1.4.2.2"
+#endif /* VERSION_filepath */
+#ifndef MIN_VERSION_filepath
+#define MIN_VERSION_filepath(major1,major2,minor) (\
+  (major1) <  1 || \
+  (major1) == 1 && (major2) <  4 || \
+  (major1) == 1 && (major2) == 4 && (minor) <= 2)
+#endif /* MIN_VERSION_filepath */
+/* package gi-cairo-1.0.30 */
+#ifndef VERSION_gi_cairo
+#define VERSION_gi_cairo "1.0.30"
+#endif /* VERSION_gi_cairo */
+#ifndef MIN_VERSION_gi_cairo
+#define MIN_VERSION_gi_cairo(major1,major2,minor) (\
+  (major1) <  1 || \
+  (major1) == 1 && (major2) <  0 || \
+  (major1) == 1 && (major2) == 0 && (minor) <= 30)
+#endif /* MIN_VERSION_gi_cairo */
+/* package gi-gdk3-3.0.30 */
+#ifndef VERSION_gi_gdk3
+#define VERSION_gi_gdk3 "3.0.30"
+#endif /* VERSION_gi_gdk3 */
+#ifndef MIN_VERSION_gi_gdk3
+#define MIN_VERSION_gi_gdk3(major1,major2,minor) (\
+  (major1) <  3 || \
+  (major1) == 3 && (major2) <  0 || \
+  (major1) == 3 && (major2) == 0 && (minor) <= 30)
+#endif /* MIN_VERSION_gi_gdk3 */
+/* package gi-gdkpixbuf-2.0.32 */
+#ifndef VERSION_gi_gdkpixbuf
+#define VERSION_gi_gdkpixbuf "2.0.32"
+#endif /* VERSION_gi_gdkpixbuf */
+#ifndef MIN_VERSION_gi_gdkpixbuf
+#define MIN_VERSION_gi_gdkpixbuf(major1,major2,minor) (\
+  (major1) <  2 || \
+  (major1) == 2 && (major2) <  0 || \
+  (major1) == 2 && (major2) == 0 && (minor) <= 32)
+#endif /* MIN_VERSION_gi_gdkpixbuf */
+/* package gi-gio-2.0.35 */
+#ifndef VERSION_gi_gio
+#define VERSION_gi_gio "2.0.35"
+#endif /* VERSION_gi_gio */
+#ifndef MIN_VERSION_gi_gio
+#define MIN_VERSION_gi_gio(major1,major2,minor) (\
+  (major1) <  2 || \
+  (major1) == 2 && (major2) <  0 || \
+  (major1) == 2 && (major2) == 0 && (minor) <= 35)
+#endif /* MIN_VERSION_gi_gio */
+/* package gi-gtk4-4.0.12 */
+#ifndef VERSION_gi_gtk4
+#define VERSION_gi_gtk4 "4.0.12"
+#endif /* VERSION_gi_gtk4 */
+#ifndef MIN_VERSION_gi_gtk4
+#define MIN_VERSION_gi_gtk4(major1,major2,minor) (\
+  (major1) <  4 || \
+  (major1) == 4 && (major2) <  0 || \
+  (major1) == 4 && (major2) == 0 && (minor) <= 12)
+#endif /* MIN_VERSION_gi_gtk4 */
+/* package haskell-gi-base-0.26.8 */
+#ifndef VERSION_haskell_gi_base
+#define VERSION_haskell_gi_base "0.26.8"
+#endif /* VERSION_haskell_gi_base */
+#ifndef MIN_VERSION_haskell_gi_base
+#define MIN_VERSION_haskell_gi_base(major1,major2,minor) (\
   (major1) <  0 || \
-  (major1) == 0 && (major2) <  15 || \
-  (major1) == 0 && (major2) == 15 && (minor) <= 9)
-#endif /* MIN_VERSION_gtk3 */
+  (major1) == 0 && (major2) <  26 || \
+  (major1) == 0 && (major2) == 26 && (minor) <= 8)
+#endif /* MIN_VERSION_haskell_gi_base */
+/* package text-2.0.1 */
+#ifndef VERSION_text
+#define VERSION_text "2.0.1"
+#endif /* VERSION_text */
+#ifndef MIN_VERSION_text
+#define MIN_VERSION_text(major1,major2,minor) (\
+  (major1) <  2 || \
+  (major1) == 2 && (major2) <  0 || \
+  (major1) == 2 && (major2) == 0 && (minor) <= 1)
+#endif /* MIN_VERSION_text */
 
 /* tool gcc-13 */
 #ifndef TOOL_VERSION_gcc
