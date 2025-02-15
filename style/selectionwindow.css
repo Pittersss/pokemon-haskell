@@ -1,0 +1,29 @@
+#customButton {
+    background: transparent;
+    border: 2px solid red;
+    color: red;
+}
+
+#customButton:hover {
+    background: rgba(255, 0, 0, 0.1);
+}
+
+#window {
+    background-image: url(file:///D:/workspace/haskell/pokemon/app/background2.jpg);
+}
+/* Container da imagem */
+#backgroundContainer {
+    padding: 0;
+    margin: 0;
+    min-width: 800px;
+    min-height: 600px;
+    /* background: rgba(200, 250, 20, 0.94); */
+}
+
+
+#overlay {
+    padding: 0;
+    margin: 0;
+    min-width: 800px;
+    min-height: 600px;
+}
