@@ -15,6 +15,7 @@ import qualified GI.Gio as Gio
 import qualified GI.Gtk as Gtk
 import Data.GI.Base
 
+<<<<<<< HEAD
 
 --Alinhar questões do Pokemon com Aelson antes de mudar
 cenaDeBatalhaInterface :: Gtk.Application -> Gtk.ApplicationWindow -> IO ()
@@ -42,6 +43,8 @@ cenaDeBatalhaInterface app w = do
 
 -- Gera a interface da Escolha do Segundo Pokemon 
 -- Encaminha para a cena de batalha
+=======
+>>>>>>> 5bc8f2c2fc911aaf4418f31f55cfea0ad0d4c2d8
 escolhaPokemon2 :: Gtk.Application -> Gtk.ApplicationWindow -> IO()
 escolhaPokemon2 app w = do
   
@@ -55,6 +58,7 @@ escolhaPokemon2 app w = do
                                   #defaultHeight := 600]
 
   button1 <- new Gtk.Button [#label := "Pokémon 1",
+<<<<<<< HEAD
                             On #clicked (cenaDeBatalhaInterface app window)]
   button2 <- new Gtk.Button [#label := "Pokémon 2",
                             On #clicked (cenaDeBatalhaInterface app window)]
@@ -64,15 +68,30 @@ escolhaPokemon2 app w = do
                             On #clicked (cenaDeBatalhaInterface app window)]
   button5 <- new Gtk.Button [#label := "Pokémon 5",
                             On #clicked (cenaDeBatalhaInterface app window)]                                                                                                        
+=======
+                            On #clicked cenaDeBatalhaInterface app window]
+  button2 <- new Gtk.Button [#label := "Pokémon 2",
+                            On #clicked cenaDeBatalhaInterface app window]
+  button3 <- new Gtk.Button [#label := "Pokémon 3",
+                            On #clicked cenaDeBatalhaInterface app window]
+  button4 <- new Gtk.Button [#label := "Pokémon 4",
+                            On #clicked cenaDeBatalhaInterface app window]
+  button5 <- new Gtk.Button [#label := "Pokémon 5",
+                            On #clicked cenaDeBatalhaInterface app window]                                                                                                        
+>>>>>>> 5bc8f2c2fc911aaf4418f31f55cfea0ad0d4c2d8
                             
   #append box button1
   #append box button2
   #append box button3
   #append box button4
   #append box button5
+<<<<<<< HEAD
 
 -- Gera a interface da Escolha do Primeiro Pokemon 
 -- Encaminha para a escolha do segundo pokemon
+=======
+   
+>>>>>>> 5bc8f2c2fc911aaf4418f31f55cfea0ad0d4c2d8
 escolhaPokemon1 :: Gtk.Application -> Gtk.ApplicationWindow -> IO()
 escolhaPokemon1 app w = do
   
@@ -103,8 +122,12 @@ escolhaPokemon1 app w = do
   #append box button5
 
 
+<<<<<<< HEAD
 -- Gera a interface Inicial 
 -- Encaminha para a escolha do primeiro pokemon
+=======
+
+>>>>>>> 5bc8f2c2fc911aaf4418f31f55cfea0ad0d4c2d8
 escolhaSeuPokemonInterface :: Gtk.Application -> Gtk.ApplicationWindow -> IO ()
 escolhaSeuPokemonInterface app w = do
   Gtk.windowDestroy w
@@ -136,6 +159,40 @@ escolhaSeuPokemonInterface app w = do
 
   Gtk.widgetSetValign box Gtk.AlignCenter
 
+<<<<<<< HEAD
+=======
+  window.show
+
+
+
+                               
+
+cenaDeBatalhaInterface :: Gtk.Application -> Gtk.ApplicationWindow
+cenaDeBatalhaInterface app w = do
+  Gtk.windowDestroy w
+  box <- new Gtk.Box [#orientation := Gtk.OrientationHorizontal]
+
+  window <- new Gtk.ApplicationWindow [#application := app,
+                                  #title := "Batalha",
+                                  #child := box,
+                                  #defaultWidth := 800,
+                                  #defaultHeight := 600]
+
+  button1 <- new Gtk.Button [#label := "ATAQUE",
+                            On #clicked print ""]
+  button2 <- new Gtk.Button [#label := "INVENTÁRIO",
+                            On #clicked print ""]
+  button3 <- new Gtk.Button [#label := "POKEMON",
+                            On #clicked print ""]
+  button4 <- new Gtk.Button [#label := "DESISTIR",
+                            On #clicked print ""]
+
+  #append box button1
+  #append box button2
+  #append box button3
+  #append box button4
+
+>>>>>>> 5bc8f2c2fc911aaf4418f31f55cfea0ad0d4c2d8
   window.show
 
 

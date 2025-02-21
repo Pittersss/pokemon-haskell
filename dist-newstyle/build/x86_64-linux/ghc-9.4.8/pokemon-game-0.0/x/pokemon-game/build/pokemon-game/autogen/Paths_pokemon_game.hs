@@ -46,12 +46,12 @@ getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: 
 
 
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
-bindir     = "/home/pedro/.cabal/bin"
-libdir     = "/home/pedro/.cabal/lib/x86_64-linux-ghc-9.4.4/pokemon-game-0.0-inplace-pokemon-game"
-dynlibdir  = "/home/pedro/.cabal/lib/x86_64-linux-ghc-9.4.4"
-datadir    = "/home/pedro/.cabal/share/x86_64-linux-ghc-9.4.4/pokemon-game-0.0"
-libexecdir = "/home/pedro/.cabal/libexec/x86_64-linux-ghc-9.4.4/pokemon-game-0.0"
-sysconfdir = "/home/pedro/.cabal/etc"
+bindir     = "/home/pedrom/.cabal/bin"
+libdir     = "/home/pedrom/.cabal/lib/x86_64-linux-ghc-9.4.8/pokemon-game-0.0-inplace-pokemon-game"
+dynlibdir  = "/home/pedrom/.cabal/lib/x86_64-linux-ghc-9.4.8"
+datadir    = "/home/pedrom/.cabal/share/x86_64-linux-ghc-9.4.8/pokemon-game-0.0"
+libexecdir = "/home/pedrom/.cabal/libexec/x86_64-linux-ghc-9.4.8/pokemon-game-0.0"
+sysconfdir = "/home/pedrom/.cabal/etc"
 
 getBinDir     = catchIO (getEnv "pokemon_game_bindir")     (\_ -> return bindir)
 getLibDir     = catchIO (getEnv "pokemon_game_libdir")     (\_ -> return libdir)
