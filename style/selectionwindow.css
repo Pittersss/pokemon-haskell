@@ -17,59 +17,34 @@
     min-height: 1000px; 
 }
 
-#button_charizard {
-    background: transparent;
-    border: 2px outset rgb(56, 76, 227);
-    padding: 5px;
-    min-width: 70px;
-    min-height: 60px; 
+#titleLabel {
+    margin-bottom: 24px;
+    font-weight: bold;
+    color: rgb(255, 255, 255);
 }
 
-#button_blastoise {
-    background: transparent;
-    border: 2px outset rgb(56, 76, 227);
-    padding: 5px;
-    min-width: 70px;
-    min-height: 60px; 
-    
-}
-
-#button_venusaur {
-    background: transparent;
-    border: 2px outset rgb(56, 76, 227);
-    padding: 5px;
-    min-width: 70px;
-    min-height: 60px; 
-    
-}
-
-
-#button_pikachu {
-    background: transparent;
-    border: 2px outset rgb(56, 76, 227);
-    padding: 5px;
-    min-width: 70px;
-    min-height: 60px; 
-    
-}
-
-#button_pidgeot {
-    background: transparent;
-    border: 2px outset rgb(56, 76, 227);
-    padding: 5px;
-    min-width: 70px;
-    min-height: 60px; 
-    
-}
-
-
+#button_charizard,
+#button_blastoise,
+#button_venusaur,
+#button_pikachu,
+#button_pidgeot,
 #button_butterfree {
     background: transparent;
     border: 2px outset rgb(56, 76, 227);
     padding: 5px;
     min-width: 70px;
     min-height: 60px; 
-    
+}
+
+#button_charizard:hover,
+#button_blastoise:hover,
+#button_venusaur:hover,
+#button_pikachu:hover,
+#button_pidgeot:hover,
+#button_butterfree:hover,
+#button_butterfree:active
+{
+    background: rgba(148, 162, 193, 0.36);
 }
 
 #overlay {

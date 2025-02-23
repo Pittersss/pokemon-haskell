@@ -3,9 +3,6 @@
 import Control.Monad (void)
 import qualified GI.GdkPixbuf as GdkPixbuf
 import qualified GI.Gtk as Gtk
-import qualified GI.Gdk as Gdk
-
-import GHC.Int (Int32)
 import Data.IORef
 import Data.GI.Base
 import Data.Text (Text, pack)
@@ -17,7 +14,7 @@ cssPriority = fromIntegral Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
 
 applyStyle :: Gtk.Widget -> IO ()
 applyStyle widget = do
-  provider <- new Gtk.CssProvider []
+  provider <- Gtk.cssProviderNew
   Gtk.cssProviderLoadFromPath provider "/mnt/d/workspace/haskell/pokemon/style/selectionwindow.css"
   styleContext <- Gtk.widgetGetStyleContext widget
   Gtk.styleContextAddProvider styleContext provider cssPriority
@@ -26,12 +23,9 @@ convertAndApplyStyle :: Gtk.IsWidget a => a -> IO ()
 convertAndApplyStyle widgetToConvert = do
   maybeWidget <- castTo Gtk.Widget widgetToConvert
   case maybeWidget of
-    Just widget -> applyStyle widget  
+    Just widget -> applyStyle widget
     Nothing -> putStrLn "Erro: Conversão para Widget falhou"
 
-    
--- Função para recortar um sprite específico da spritesheet via GdkPixbuf
--- Recebe o x, y (localização em pixels do pedaço da imagem) e width: largura do pedaço a ser recortado, height: altura do pedaço a ser recortado
 loadSprite :: FilePath -> Int -> Int -> Int -> Int -> IO (Maybe Gtk.Image)
 loadSprite spritePath x y width height = do
     maybePixbuf <- GdkPixbuf.pixbufNewFromFile spritePath
@@ -58,7 +52,7 @@ activate app = do
     ]
 
   container <- new Gtk.Box [
-      #orientation := Gtk.OrientationHorizontal,
+      #orientation := Gtk.OrientationVertical,
       #name        := "backgroundContainer",
       #hexpand     := True,
       #vexpand     := True,
@@ -67,7 +61,7 @@ activate app = do
     ]
 
   bgImage <- new Gtk.Image [
-      #file   := "/mnt/d/workspace/haskell/pokemon/app/background2.jpg",
+      #file   := "/mnt/d/workspace/haskell/pokemon/images/background2.jpg",
       #name   := "image",
       #hexpand:= True,
       #vexpand:= True
@@ -76,10 +70,16 @@ activate app = do
   #append container bgImage
 
   labelBox <- new Gtk.Box [
-      #name        := "labelBox", 
-      #orientation := Gtk.OrientationHorizontal, 
+      #name        := "labelBox",
+      #orientation := Gtk.OrientationVertical,
       #halign      := Gtk.AlignCenter,
       #valign      := Gtk.AlignCenter
+    ]
+
+  titleLabel <- new Gtk.Label [
+      #label  := "Selecione seu Pokémon",
+      #name   := "titleLabel",
+      #halign := Gtk.AlignCenter
     ]
 
   grid <- new Gtk.Grid [
@@ -87,17 +87,13 @@ activate app = do
       #halign := Gtk.AlignCenter,
       #valign := Gtk.AlignCenter
     ]
- 
+
   Gtk.gridSetRowSpacing grid 7
   Gtk.gridSetColumnSpacing grid 7
 
   selectedButtons <- newIORef ([] :: [Text])
   let spriteSheetPath = "/mnt/d/workspace/haskell/pokemon/images/spritesheet.png"
 
- 
-
-   -- Mapeamento com posições específicas para cada sprite e seus nomes.
-  -- Cada tupla contém: (nome, (x, y, largura, altura))
   let spriteMapping :: [(Text, (Int, Int, Int, Int))]
       spriteMapping =
          [ ("charizard", (0, 394, 32, 32))
@@ -108,9 +104,8 @@ activate app = do
          , ("butterfree", (0, 832, 30, 32))
          ]
 
-
   btns <- mapM (\(name, (x, y, w, h)) -> do
-    btn <- new Gtk.Button []  
+    btn <- new Gtk.Button []
     let buttonName = "button_" <> name
     #setName btn buttonName
     maybeImage <- loadSprite spriteSheetPath x y w h
@@ -121,22 +116,30 @@ activate app = do
         modifyIORef selectedButtons (\selected -> take 2 (selected ++ [name]))
         selection <- readIORef selectedButtons
         if length selection == 2
-        then openNewScreen app selection
+            then do
+                -- Obtém a referência da janela principal
+                mw <- Gtk.applicationGetActiveWindow app
+                case mw of
+                    Just mainWindow -> #destroy mainWindow  -- Fecha a janela atual
+                    Nothing -> putStrLn "Erro: Nenhuma janela ativa encontrada"
+                openNewScreen app selection  -- Abre a nova tela
         else pure ()
     convertAndApplyStyle btn
     return btn) spriteMapping
 
-  -- Distribui os botões na grade
   mapM_ (\(btn, idx) -> #attach grid btn (fromIntegral ((idx - 1) `mod` 3)) (fromIntegral ((idx - 1) `div` 3)) 1 1) (zip btns [1..length btns])
 
+  #append labelBox titleLabel
+  #append labelBox grid
+
   #addOverlay overlay container
-  #addOverlay overlay labelBox 
-  #append labelBox grid 
+  #addOverlay overlay labelBox
 
   convertAndApplyStyle overlay
   convertAndApplyStyle container
   convertAndApplyStyle labelBox
   convertAndApplyStyle grid
+  convertAndApplyStyle titleLabel
 
   #setChild window (Just overlay)
   #show window
