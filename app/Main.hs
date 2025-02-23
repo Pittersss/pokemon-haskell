@@ -1,8 +1,9 @@
 import Data.Csv
 import qualified Data.ByteString.Lazy as BL
-import Data.Vector (Vector)
+import Data.Vector (Vector, (!), (!?)) 
 import Control.Applicative
 import System.Random (randomRIO)
+import Control.Monad
 
 data Pokemon = Pokemon {
 	nome :: String,
@@ -99,6 +100,9 @@ decideQuemVaiPrimeiro pok1 pok2 =
 		then 1
 		else 2
 
+temPP :: Attack -> Bool
+temPP ataque = ((currentPP ataque) /= 0)
+
 --calculaCritico :: Int -> IO Bool
 --calculaCritico critical = do
 --	rand <- randomRIO(1, 100)
@@ -132,7 +136,7 @@ realizaAtaque atacante alvo ataque = do
 
 	
 calculaDano :: Int -> Int -> Int -> Int -> Double -> Double -> Double -> Int
-calculaDano level poder ataque defesa stab tipo burn = 
+calculaDano level poder ataque defesa stab tipo burn =
      truncate (((((((fromIntegral level) * 2 / 5) + 2) * (fromIntegral poder ) * ((fromIntegral ataque) / (fromIntegral defesa))) / 50) + 2) * stab * tipo * burn)
  
 utilizaItem :: PokemonBattle -> Item -> PokemonBattle
@@ -174,11 +178,11 @@ alteraHP pokemon vida =
 	let newHp = calculaHp (maxHitPoints pokemon) (hitPoints pokemon) vida
         in pokemon { hitPoints = newHp}
 
+
 main::IO()
 main = do
 	csvData <- BL.readFile "./data/pokemon.csv"
 	let decoded = decode HasHeader csvData :: Either String (Vector Pokemon)
 	case decoded of
-        	Left err  -> putStrLn $ "Error parsing CSV: " ++ err
-        	Right pokemons -> mapM_ print pokemons
-	
+	       	Left err  -> putStrLn $ "Error parsing CSV: " ++ err
+	      	Right pokemons -> do mapM_ print pokemons

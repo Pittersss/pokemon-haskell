@@ -1,0 +1,4 @@
+nome,hp,fAtk,fDef,sAtk,sDef,spd
+"A","Fogo","Agua",100,60,50,70,60,80
+"B","Terra","Grama",120,80,60,90,70,100
+"C","Rocha","Fada",90,50,40,60,50,70
