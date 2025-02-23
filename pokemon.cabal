@@ -67,7 +67,7 @@ executable pokemon
     -- other-extensions:
 
     -- Other library packages from which modules are imported.
-    build-depends:    base ^>=4.17.2.1, gi-gtk4,  haskell-gi-base >=0.26,  text , gi-gdk4
+    build-depends:    base ^>=4.17.2.1, gi-gtk4,  haskell-gi-base >=0.26,  text , gi-gdk4, gi-gdkpixbuf 
 
     -- Directories containing source files.
     hs-source-dirs:   app
