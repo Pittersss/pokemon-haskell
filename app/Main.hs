@@ -1,6 +1,6 @@
 import Data.Csv
 import qualified Data.ByteString.Lazy as BL
-import Data.Vector (Vector, (!), (!?)) 
+import Data.Vector (Vector, (!), (!?), find) 
 import Control.Applicative
 import System.Random (randomRIO)
 import Control.Monad
@@ -45,7 +45,7 @@ data Attack = Attack {
 	pp :: Int,
 	currentPP :: Int,
 	critical :: Int
-}
+} deriving (Show)
 
 data Item = Item {
 	nomeItem :: String,
@@ -56,6 +56,11 @@ instance FromRecord Pokemon where
 	parseRecord v
 		| length v == 9 = Pokemon <$> v .! 0 <*> v .! 1 <*> v .! 2 <*> v .! 3 <*> v .! 4 <*> v .! 5 <*> v .! 6 <*> v .! 7 <*> v .! 8
 		| otherwise     = fail "Invalid number of columns"
+
+instance FromRecord Attack where
+	parseRecord v
+		| length v == 8 = Attack <$> v .! 0 <*> v .! 1 <*> v .! 2 <*> v .! 3 <*> v .! 4 <*> v .! 5 <*> v .! 6 <*> v .! 7
+                | otherwise     = fail "Invalid number of columns"
 
 generateHp :: Int -> Int -> Int
 generateHp base level = 
@@ -99,6 +104,17 @@ decideQuemVaiPrimeiro pok1 pok2 =
 	if (speed pok1) >= (speed pok2)
 		then 1
 		else 2
+
+coletaAtaque :: String -> IO (Either String (Maybe Attack))
+coletaAtaque nome = do 
+	csvData <- BL.readFile "./data/ataques.csv"
+	let decoded = decode HasHeader csvData :: Either String (Vector Attack)
+	case decoded of
+		Left err -> return $ Left err
+		Right ataques -> return $ Right (findAttackByName nome ataques)
+
+findAttackByName :: String -> Vector Attack -> Maybe Attack
+findAttackByName nome ataques = find (\a -> name a == nome) ataques
 
 temPP :: Attack -> Bool
 temPP ataque = ((currentPP ataque) /= 0)
@@ -181,8 +197,13 @@ alteraHP pokemon vida =
 
 main::IO()
 main = do
-	csvData <- BL.readFile "./data/pokemon.csv"
-	let decoded = decode HasHeader csvData :: Either String (Vector Pokemon)
-	case decoded of
-	       	Left err  -> putStrLn $ "Error parsing CSV: " ++ err
-	      	Right pokemons -> do mapM_ print pokemons
+	result <- coletaAtaque "Flamethrower"
+	case result of
+		Left err -> putStrLn $ "Error: "
+		Right Nothing -> putStrLn "Ataque não encontrado"
+		Right (Just ataque) -> putStrLn $ "Ataque encontrado: " ++ show ataque
+--	csvData <- BL.readFile "./data/pokemon.csv"
+---	let decoded = decode HasHeader csvData :: Either String (Vector Pokemon)
+--	case decoded of
+--	       	Left err  -> putStrLn $ "Error parsing CSV: " ++ err
+--	      	Right pokemons -> do mapM_ print pokemons
