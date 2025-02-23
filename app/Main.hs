@@ -30,9 +30,13 @@ data PokemonBattle = PokemonBattle {
 	speed :: Int,
 	level :: Int,
 	atk1 :: String,
+	ppAtk1 :: Int,
 	atk2 :: String,
+	ppAtk2 :: Int,
 	atk3 :: String,
+	ppAtk3 :: Int,
 	atk4 :: String,
+	ppAtk4 :: Int,
 	condition :: String
 }
 
@@ -43,7 +47,6 @@ data Attack = Attack {
 	power :: Int,
 	accuracy :: Int,
 	pp :: Int,
-	currentPP :: Int,
 	critical :: Int
 } deriving (Show)
 
@@ -59,7 +62,7 @@ instance FromRecord Pokemon where
 
 instance FromRecord Attack where
 	parseRecord v
-		| length v == 8 = Attack <$> v .! 0 <*> v .! 1 <*> v .! 2 <*> v .! 3 <*> v .! 4 <*> v .! 5 <*> v .! 6 <*> v .! 7
+		| length v == 7 = Attack <$> v .! 0 <*> v .! 1 <*> v .! 2 <*> v .! 3 <*> v .! 4 <*> v .! 5 <*> v .! 6 
                 | otherwise     = fail "Invalid number of columns"
 
 generateHp :: Int -> Int -> Int
@@ -70,7 +73,7 @@ generateStat :: Int -> Int -> Int
 generateStat base level =
    (div ((2 * base + 31) * level) 100) + 5
 
-generatePokemon :: Pokemon -> Int -> String -> String -> String -> String -> PokemonBattle
+generatePokemon :: Pokemon -> Int -> Attack -> Attack -> Attack -> Attack -> PokemonBattle
 generatePokemon pokemon nivel attack1 attack2 attack3 attack4 =
 	let currentHp = generateHp (hp pokemon) nivel
 	    currentFAtk = generateStat (fAtk pokemon) nivel
@@ -91,10 +94,14 @@ generatePokemon pokemon nivel attack1 attack2 attack3 attack4 =
 		sDefense = currentSDef,
 		speed = currentSpeed,
 		level = nivel,
-		atk1 = attack1,
-		atk2 = attack2,
-		atk3 = attack3,
-		atk4 = attack4,
+		atk1 = name attack1,
+		ppAtk1 = pp attack1,
+		atk2 = name attack2,
+		ppAtk2 = pp attack2,
+		atk3 = name attack3,
+		ppAtk3 = pp attack3,
+		atk4 = name attack4,
+		ppAtk4 = pp attack4,
 		condition = ""
 	    }
 	in pokBattle
@@ -116,8 +123,12 @@ coletaAtaque nome = do
 findAttackByName :: String -> Vector Attack -> Maybe Attack
 findAttackByName nome ataques = find (\a -> name a == nome) ataques
 
-temPP :: Attack -> Bool
-temPP ataque = ((currentPP ataque) /= 0)
+temPP :: PokemonBattle -> Int -> Bool
+temPP pokemon 1 = ((ppAtk1 pokemon) /= 0)
+temPP pokemon 2 = ((ppAtk2 pokemon) /= 0)
+temPP pokemon 3 = ((ppAtk3 pokemon) /= 0)
+temPP pokemon 4 = ((ppAtk4 pokemon) /= 0)
+temPP pokemon x = False
 
 --calculaCritico :: Int -> IO Bool
 --calculaCritico critical = do
@@ -197,7 +208,7 @@ alteraHP pokemon vida =
 
 main::IO()
 main = do
-	result <- coletaAtaque "Flamethrower"
+	result <- coletaAtaque "Thunder"
 	case result of
 		Left err -> putStrLn $ "Error: "
 		Right Nothing -> putStrLn "Ataque não encontrado"
