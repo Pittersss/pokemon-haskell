@@ -77,8 +77,13 @@ executable pokemon-game
                            gi-gdkpixbuf,
                            gi-gio,
                            haskell-gi-base,
-                           text
-
+                           text,
+                           bytestring, 
+                           vector,
+                           random >= 1.2 && < 1.4,
+                           cassava,
+                           text,
+                           
     -- Directories containing source files.
     hs-source-dirs:   app
 
