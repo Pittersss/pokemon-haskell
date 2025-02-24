@@ -36,6 +36,20 @@ loadSprite spritePath x y width height = do
           image <- Gtk.imageNewFromPixbuf (Just subPixbuf)
           return (Just image)
 
+onButtonClicked :: Gtk.Application -> IORef [Text] -> Text -> IO ()
+onButtonClicked app selectedButtons name = do
+    modifyIORef selectedButtons (\selected -> take 2 (selected ++ [name]))
+    selection <- readIORef selectedButtons
+    if length selection == 2
+        then do
+                mw <- Gtk.applicationGetActiveWindow app
+                case mw of
+                    Just mainWindow -> #destroy mainWindow
+                    Nothing -> putStrLn "Erro: Nenhuma janela ativa encontrada"
+                openNewScreen app selection 
+        else pure ()
+
+
 activate :: Gtk.Application -> IO ()
 activate app = do
   window <- new Gtk.ApplicationWindow [
@@ -112,18 +126,7 @@ activate app = do
     case maybeImage of
         Just img -> #setChild btn (Just img)
         Nothing  -> putStrLn ("Erro ao carregar sprite " ++ show name)
-    void $ on btn #clicked $ do
-        modifyIORef selectedButtons (\selected -> take 2 (selected ++ [name]))
-        selection <- readIORef selectedButtons
-        if length selection == 2
-            then do
-                -- Obtém a referência da janela principal
-                mw <- Gtk.applicationGetActiveWindow app
-                case mw of
-                    Just mainWindow -> #destroy mainWindow  -- Fecha a janela atual
-                    Nothing -> putStrLn "Erro: Nenhuma janela ativa encontrada"
-                openNewScreen app selection  -- Abre a nova tela
-        else pure ()
+    void $ on btn #clicked (onButtonClicked app selectedButtons name)
     convertAndApplyStyle btn
     return btn) spriteMapping
 
