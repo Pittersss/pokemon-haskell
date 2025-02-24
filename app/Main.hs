@@ -145,8 +145,15 @@ battleCeneInterface app w = do
   #append box button3
   #append box button4
 
+>>>>>>> 5bc8f2c2fc911aaf4418f31f55cfea0ad0d4c2d8
   window.show
 
+
+
+                               
+
+
+--Inicio da Aplicação
 activate :: Gtk.Application -> IO ()
 activate app = do
   box <- new Gtk.Box [#orientation := Gtk.OrientationHorizontal]
