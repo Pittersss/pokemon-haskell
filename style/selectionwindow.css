@@ -28,12 +28,18 @@
 #button_venusaur,
 #button_pikachu,
 #button_pidgeot,
-#button_butterfree {
+#button_butterfree,
+#button_alakazam,
+#button_gengar,
+#button_onix,
+#button_seadra,
+#button_hitmonlee,
+#button_cloyster {
     background: transparent;
     border: 2px outset rgb(56, 76, 227);
     padding: 5px;
-    min-width: 70px;
-    min-height: 60px; 
+    min-width: 50px;
+    min-height: 50px; 
 }
 
 #button_charizard:hover,
@@ -42,7 +48,12 @@
 #button_pikachu:hover,
 #button_pidgeot:hover,
 #button_butterfree:hover,
-#button_butterfree:active
+#button_alakazam:hover,
+#button_gengar:hover,
+#button_onix:hover,
+#button_seadra:hover,
+#button_hitmonlee:hover,
+#button_cloyster:hover
 {
     background: rgba(148, 162, 193, 0.36);
 }

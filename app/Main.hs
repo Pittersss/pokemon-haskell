@@ -38,9 +38,9 @@ loadSprite spritePath x y width height = do
 
 onButtonClicked :: Gtk.Application -> IORef [Text] -> Text -> IO ()
 onButtonClicked app selectedButtons name = do
-    modifyIORef selectedButtons (\selected -> take 2 (selected ++ [name]))
+    modifyIORef selectedButtons (\selected -> take 6 (selected ++ [name]))
     selection <- readIORef selectedButtons
-    if length selection == 2
+    if length selection == 6
         then do
                 mw <- Gtk.applicationGetActiveWindow app
                 case mw of
@@ -91,7 +91,7 @@ activate app = do
     ]
 
   titleLabel <- new Gtk.Label [
-      #label  := "Selecione seu Pokémon",
+      #label  := "Selecione seus Pokémons",
       #name   := "titleLabel",
       #halign := Gtk.AlignCenter
     ]
@@ -106,7 +106,7 @@ activate app = do
   Gtk.gridSetColumnSpacing grid 7
 
   selectedButtons <- newIORef ([] :: [Text])
-  let spriteSheetPath = "/mnt/d/workspace/haskell/pokemon/images/spritesheet.png"
+  let spriteSheetPath = "/mnt/d/workspace/haskell/pokemon/images/spritesheettemp.png"
 
   let spriteMapping :: [(Text, (Int, Int, Int, Int))]
       spriteMapping =
@@ -116,6 +116,12 @@ activate app = do
          , ("pikachu", (0, 1744, 24, 32))
          , ("pidgeot", (0, 1184, 22, 32))
          , ("butterfree", (0, 832, 30, 32))
+         , ("alakazam", (1224,1050,27,32))
+         , ("gengar", (619,1298,22,32))
+         , ("onix", (619,1370,25,60))
+         , ("seadra", (2440,1380,30,32))
+         , ("hitmonlee", (2446,490,32,32))
+         , ("cloyster", (618,1084,25,32))
          ]
 
   btns <- mapM (\(name, (x, y, w, h)) -> do
