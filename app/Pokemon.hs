@@ -8,7 +8,7 @@ import System.Random (randomRIO)
 import Control.Monad
 
 data Pokemon = Pokemon {
-	nome :: String,
+	nome :: String,	
 	tipo1 :: String,
 	tipo2 :: String,
 	hp :: Int,
@@ -17,30 +17,8 @@ data Pokemon = Pokemon {
 	sAtk :: Int,
 	sDef :: Int,
 	spd :: Int
+	
 } deriving (Show)
-
-data PokemonBattle = PokemonBattle {
-	nomePok :: String,
-	type1 :: String,
-	type2 :: String,	
-	maxHitPoints :: Int,
-	hitPoints :: Int,
-	fAttack :: Int,
-	fDefense :: Int,
-	sAttack :: Int,
-	sDefense :: Int,
-	speed :: Int,
-	level :: Int,
-	atk1 :: String,
-	ppAtk1 :: Int,
-	atk2 :: String,
-	ppAtk2 :: Int,
-	atk3 :: String,
-	ppAtk3 :: Int,
-	atk4 :: String,
-	ppAtk4 :: Int,
-	condition :: String
-}
 
 data Attack = Attack {
 	name :: String,
@@ -51,6 +29,18 @@ data Attack = Attack {
 	pp :: Int,
 	critical :: Int
 } deriving (Show)
+
+data PokemonBattle = PokemonBattle {
+	pokemon :: Pokemon,
+	atk1 :: Attack,
+	atk2 :: Attack,
+	atk3 :: Attack,
+	atk4 :: Attack,
+	condition :: String,
+	level :: Int,
+	hitPoints :: Int, -- vidaAtual
+	maxHitPoints :: Int -- vidaInicial
+}
 
 data Item = Item {
 	nomeItem :: String,
@@ -85,32 +75,18 @@ generatePokemon pokemon nivel attack1 attack2 attack3 attack4 =
 	    currentSpeed = generateStat (spd pokemon) nivel 
 	    currentName = nome pokemon
 	    pokBattle = PokemonBattle {
-		nomePok = currentName,
-		type1 = tipo1 pokemon,
-		type2 = tipo2 pokemon,
-		maxHitPoints = currentHp,
-		hitPoints = currentHp,
-		fAttack = currentFAtk,
-		fDefense = currentFDef,
-		sAttack = currentSAtk,
-		sDefense = currentSDef,
-		speed = currentSpeed,
-		level = nivel,
-		atk1 = name attack1,
-		ppAtk1 = pp attack1,
-		atk2 = name attack2,
-		ppAtk2 = pp attack2,
-		atk3 = name attack3,
-		ppAtk3 = pp attack3,
-		atk4 = name attack4,
-		ppAtk4 = pp attack4,
+		pokemon = pokemon,
+		atk1 = attack1,
+		atk2 = attack2,
+		atk3 = attack3,
+		atk4 = attack4,
 		condition = ""
 	    }
 	in pokBattle
 
 decideQuemVaiPrimeiro :: PokemonBattle -> PokemonBattle -> Int
 decideQuemVaiPrimeiro pok1 pok2 = 
-	if (speed pok1) >= (speed pok2)
+	if (spd (pokemon pok1)) >= (spd (pokemon pok2))
 		then 1
 		else 2
 
@@ -126,10 +102,10 @@ findAttackByName :: String -> Vector Attack -> Maybe Attack
 findAttackByName nome ataques = find (\a -> name a == nome) ataques
 
 temPP :: PokemonBattle -> Int -> Bool
-temPP pokemon 1 = ((ppAtk1 pokemon) /= 0)
-temPP pokemon 2 = ((ppAtk2 pokemon) /= 0)
-temPP pokemon 3 = ((ppAtk3 pokemon) /= 0)
-temPP pokemon 4 = ((ppAtk4 pokemon) /= 0)
+temPP pokemon 1 = ((pp (atk1 pokemon)) /= 0)
+temPP pokemon 2 = ((pp (atk2 pokemon)) /= 0)
+temPP pokemon 3 = ((pp (atk3 pokemon)) /= 0)
+temPP pokemon 4 = ((pp (atk4 pokemon)) /= 0)
 temPP pokemon x = False
 
 --calculaCritico :: Int -> IO Bool
@@ -149,20 +125,19 @@ calculaEficiencia tipoAtaque tipoAlvo =
 eficiencia :: String -> String -> String -> Double
 eficiencia tipoAtaque tipo1Alvo tipo2Alvo = (calculaEficiencia tipoAtaque tipo1Alvo) * (calculaEficiencia tipoAtaque tipo2Alvo)
 
-realizaAtaque :: PokemonBattle -> PokemonBattle -> Attack ->IO PokemonBattle
+realizaAtaque :: PokemonBattle -> PokemonBattle -> Attack -> IO PokemonBattle
 realizaAtaque atacante alvo ataque = do
 	resultado <- calculaAcerto (accuracy ataque)
 	if resultado
 		then return newPokemon
 		else return alvo
-	where atq = if (category ataque) == "Physical" then fAttack atacante else sAttack atacante
-	      def = if (category ataque) == "Physical" then fDefense alvo else sDefense alvo
-	      stab = if ((typing ataque) == (type1 atacante) || (typing ataque) == (type2 atacante)) then 1.5 else 1.0
-	      efficiency = eficiencia (typing ataque) (type1 alvo) (type2 alvo)
-	      burn = if ((condition atacante) == "Burning" && (category ataque) == "Physical") then 0.5 else 1.0
+	where atq = if (category ataque) == "Physical" then fAtk (pokemon atacante) else sAtk (pokemon atacante)
+	      def = if (category ataque) == "Physical" then fDef (pokemon alvo) else sDef (pokemon alvo)
+	      stab = if (typing ataque) == (tipo1 (pokemon atacante)) || (typing ataque) == (tipo2 (pokemon atacante)) then 1.5 else 1.0
+	      efficiency = eficiencia (typing ataque) (tipo1 (pokemon alvo)) (tipo2 (pokemon alvo))
+	      burn = if ((condition (atacante)) == "Burning" && (category (ataque)) == "Physical") then 0.5 else 1.0
 	      dano = calculaDano (level atacante) (power ataque) atq def stab efficiency burn
 	      newPokemon = alteraHP alvo dano 
-
 	
 calculaDano :: Int -> Int -> Int -> Int -> Double -> Double -> Double -> Int
 calculaDano level poder ataque defesa stab tipo burn =
@@ -203,9 +178,9 @@ calculaHp hpMax hpCurr vida =
 			else (hpCurr + vida)
 
 alteraHP :: PokemonBattle -> Int -> PokemonBattle
-alteraHP pokemon vida =
-	let newHp = calculaHp (maxHitPoints pokemon) (hitPoints pokemon) vida
-        in pokemon { hitPoints = newHp}
+alteraHP pokemonBattle vida =
+	let newHp = calculaHp (maxHitPoints pokemonBattle) (hitPoints pokemonBattle) vida
+    in pokemonBattle { hitPoints = newHp}
 
 
 --main::IO()
