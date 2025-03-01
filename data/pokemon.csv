@@ -1,4 +1,13 @@
 nome,hp,fAtk,fDef,sAtk,sDef,spd
-"A","Fogo","Agua",100,60,50,70,60,80
-"B","Terra","Grama",120,80,60,90,70,100
-"C","Rocha","Fada",90,50,40,60,50,70
+Pidgeot,Voador,Normal,83,80,75,70,70,101
+Charizard,Voador,Fogo,78,84,78,109,85,100
+Blastoise,Agua,Agua,79,83,100,85,105,78
+Venusaur,Grama,Veneno,80,82,83,100,100,80
+Pikachu,Eletrico,Eletrico,35,55,40,50,50,90
+Butterfree,Inseto,Voador,60,45,50,90,80,70
+Hitmonlee,Lutador,Lutador,50,120,53,25,110,87
+Cloyster,Agua,Gelo,50,95,180,85,45,70
+Seadra,Agua,Agua,55,65,95,95,45,85
+Gengar,Veneno,Fantasma,60,65,60,130,75,110
+Onix,Pedra,Terra,35,45,160,30,45,70
+Alakazam,Psiquico,Psiquico,55,50,45,135,95,120
