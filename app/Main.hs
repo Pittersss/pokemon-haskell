@@ -105,6 +105,14 @@ decideQuemVaiPrimeiro pok1 pok2 =
 		then 1
 		else 2
 
+coletaPokemon :: String -> IO (Either String (Maybe Pokemon))
+coletaPokemon nome = do
+	csvData <- BL.readFile "./data/pokemon.csv"
+	let decoded = decode HasHeader csvData :: Either String (Vector Pokemon)
+	case decoded of
+		Left err -> return $ Left err
+		Right pokemons -> return $ Right (findPokemonByName nome pokemons)
+
 coletaAtaque :: String -> IO (Either String (Maybe Attack))
 coletaAtaque nome = do 
 	csvData <- BL.readFile "./data/ataques.csv"
