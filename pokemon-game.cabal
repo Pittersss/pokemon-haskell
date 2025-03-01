@@ -70,7 +70,7 @@ executable pokemon-game
     -- Other library packages from which modules are imported.
     build-depends:    base >= 4.17 && < 5,
                            gi-gtk4,
-                           haskell-gi-base,
+                           haskell-gi-base >=0.26,
                            filepath,
                            gi-cairo,
                            gi-gdk3,
