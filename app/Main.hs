@@ -9,25 +9,21 @@ data Pokemon = Pokemon {
 	nome :: String,
 	tipo1 :: String,
 	tipo2 :: String,
-	hp :: Int,
+	maxHp :: Int,
 	fAtk :: Int,
 	fDef :: Int,
 	sAtk :: Int,
 	sDef :: Int,
-	spd :: Int
-} deriving (Show)
+	spd :: Int,
+	attack1 :: String,
+	attack2 :: String,
+	attack3 :: String,
+	attack4 :: String
+} deriving (Show) 
 
 data PokemonBattle = PokemonBattle {
-	nomePok :: String,
-	type1 :: String,
-	type2 :: String,	
-	maxHitPoints :: Int,
-	hitPoints :: Int,
-	fAttack :: Int,
-	fDefense :: Int,
-	sAttack :: Int,
-	sDefense :: Int,
-	speed :: Int,
+	pkmn :: Pokemon,
+	currentHp :: Int,
 	level :: Int,
 	atk1 :: Attack,
 	atk2 :: Attack,
@@ -54,7 +50,8 @@ data Item = Item {
 
 instance FromRecord Pokemon where
 	parseRecord v
-		| length v == 9 = Pokemon <$> v .! 0 <*> v .! 1 <*> v .! 2 <*> v .! 3 <*> v .! 4 <*> v .! 5 <*> v .! 6 <*> v .! 7 <*> v .! 8
+		| length v == 13 = Pokemon <$> v .! 0 <*> v .! 1 <*> v .! 2 <*> v .! 3 <*> v .! 4 <*> v .! 5 <*> v .! 6 <*> v .! 
+			7 <*> v .! 8 <*> v .! 9 <*> v .! 10 <*> v .! 11 <*> v .! 12
 		| otherwise     = fail "Invalid number of columns"
 
 instance FromRecord Attack where
@@ -70,38 +67,32 @@ generateStat :: Int -> Int -> Int
 generateStat base level =
    (div ((2 * base + 31) * level) 100) + 5
 
-generatePokemon :: Pokemon -> Int -> Attack -> Attack -> Attack -> Attack -> PokemonBattle
-generatePokemon pokemon nivel attack1 attack2 attack3 attack4 =
-	let currentHp = generateHp (hp pokemon) nivel
-	    currentFAtk = generateStat (fAtk pokemon) nivel
-	    currentFDef = generateStat (fDef pokemon) nivel 
-	    currentSAtk = generateStat (sAtk pokemon) nivel 
-	    currentSDef = generateStat (sDef pokemon) nivel 
-	    currentSpeed = generateStat (spd pokemon) nivel 
-	    currentName = nome pokemon
+generatePokemon :: Pokemon -> Int -> IO PokemonBattle
+generatePokemon pokemon nivel = do
+	ataque1 <- coletaAtaque (attack1 pokemon)
+	ataque2 <- coletaAtaque (attack2 pokemon)
+	ataque3 <- coletaAtaque (attack3 pokemon)
+	ataque4 <- coletaAtaque (attack4 pokemon)
+	let ataque1F = extractMaybe (extractEither ataque1)
+	    ataque2F = extractMaybe (extractEither ataque2)
+	    ataque3F = extractMaybe (extractEither ataque3)
+	    ataque4F = extractMaybe (extractEither ataque4)
 	    pokBattle = PokemonBattle {
-		nomePok = currentName,
-		type1 = tipo1 pokemon,
-		type2 = tipo2 pokemon,
-		maxHitPoints = currentHp,
-		hitPoints = currentHp,
-		fAttack = currentFAtk,
-		fDefense = currentFDef,
-		sAttack = currentSAtk,
-		sDefense = currentSDef,
-		speed = currentSpeed,
+		pkmn = pokemon,
+		currentHp = (maxHp pokemon),
 		level = nivel,
-		atk1 = attack1,
-		atk2 = attack2,
-		atk3 = attack3,
-		atk4 = attack4,
+		atk1 = ataque1F,
+		atk2 = ataque2F,
+		atk3 = ataque2F,
+		atk4 = ataque4F,
 		condition = ""
 	    }
-	in pokBattle
+	return pokBattle
+
 
 decideQuemVaiPrimeiro :: PokemonBattle -> PokemonBattle -> Int
 decideQuemVaiPrimeiro pok1 pok2 = 
-	if (speed pok1) >= (speed pok2)
+	if (spd (pkmn pok1)) >= (spd (pkmn pok2))
 		then 1
 		else 2
 
@@ -171,10 +162,10 @@ realizaAtaque atacante alvo numAtaque = do
 			        critical <- calculaCritico (critical ataque)	
 				if (not resultado)
 					then return alvo
-					else do let atq = if (category ataque) == "Physical" then fAttack atacante else sAttack atacante
-						    def = if (category ataque) == "Physical" then fDefense alvo else sDefense alvo
-	    			       	    	    stab = if ((typing ataque) == (type1 atacante) || (typing ataque) == (type2 atacante)) then 1.5 else 1.0
-	      			            	    efficiency = eficiencia (typing ataque) (type1 alvo) (type2 alvo)
+					else do let atq = if (category ataque) == "Physical" then (fAtk (pkmn atacante)) else (sAtk (pkmn atacante))
+						    def = if (category ataque) == "Physical" then (fDef (pkmn alvo)) else (sDef (pkmn alvo))
+	    			       	    	    stab = if ((typing ataque) == (tipo1 (pkmn atacante)) || (typing ataque) == (tipo2 (pkmn atacante))) then 1.5 else 1.0
+	      			            	    efficiency = eficiencia (typing ataque) (tipo1 (pkmn alvo)) (tipo2 (pkmn alvo))
 	      			            	    burn = if ((condition atacante) == "Burning" && (category ataque) == "Physical") then 0.5 else 1.0
 						    dano = if (critical) then calculaDano (level atacante) (power ataque) atq def stab efficiency burn 1.5
 								         else calculaDano (level atacante) (power ataque) atq def stab efficiency burn 1.0    
@@ -217,8 +208,8 @@ calculaHp hpMax hpCurr vida =
 
 alteraHP :: PokemonBattle -> Int -> PokemonBattle
 alteraHP pokemon vida =
-	let newHp = calculaHp (maxHitPoints pokemon) (hitPoints pokemon) vida
-        in pokemon { hitPoints = newHp}
+	let newHp = calculaHp (currentHp pokemon) (maxHp (pkmn pokemon)) vida
+        in pokemon { currentHp = newHp}
 
 extractEither :: Either a b -> b
 extractEither val = case val of
@@ -245,7 +236,7 @@ main = do
 			    atk2 = extractMaybe (extractEither ataque2)
 			    atk3 = extractMaybe (extractEither ataque3)
 			    atk4 = extractMaybe (extractEither ataque4)
-			    newPok = generatePokemon  
+			    --newPok = generatePokemon  
 			mapM_ print pokemons 
 --	result <- coletaAtaque "Thunder"
 --	case result of
