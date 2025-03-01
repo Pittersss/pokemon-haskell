@@ -1,5 +1,17 @@
 module ChoicePokemon where
 
+import qualified Data.Text as T
+import qualified Data.Text.IO as TIO
+import qualified GI.Gio as Gio
+import qualified GI.Gtk as Gtk
+import Data.GI.Base
+import qualified GI.GdkPixbuf as GdkPixbuf
+import Data.IORef
+import Data.GI.Base
+import Data.Text (Text, pack)
+import GHC.Word (Word32)
+import Battle (openNewScreen)
+
 cssPriority :: Word32
 cssPriority = fromIntegral Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
 
@@ -10,11 +22,11 @@ applyStyle widget path = do
   styleContext <- Gtk.widgetGetStyleContext widget
   Gtk.styleContextAddProvider styleContext provider cssPriority
 
-convertAndApplyStyle :: Gtk.IsWidget a => a -> IO ()
-convertAndApplyStyle widgetToConvert = do
+convertAndApplyStyle :: Gtk.IsWidget a => a -> String -> IO ()
+convertAndApplyStyle widgetToConvert path = do
   maybeWidget <- castTo Gtk.Widget widgetToConvert
   case maybeWidget of
-    Just widget -> applyStyle widget "/home/pedrom/Documentos/plp-project/pokemon-haskell/style/selectionwindow.css"
+    Just widget -> applyStyle widget path
     Nothing -> putStrLn "Erro: Conversão para Widget falhou"
 
 loadSprite :: FilePath -> Int -> Int -> Int -> Int -> IO (Maybe Gtk.Image)
@@ -26,16 +38,3 @@ loadSprite spritePath x y width height = do
           subPixbuf <- GdkPixbuf.pixbufNewSubpixbuf pb (fromIntegral x) (fromIntegral y) (fromIntegral width) (fromIntegral height)
           image <- Gtk.imageNewFromPixbuf (Just subPixbuf)
           return (Just image)
-
-onButtonClicked :: Gtk.Application -> IORef [Text] -> Text -> IO ()
-onButtonClicked app selectedButtons name = do
-    modifyIORef selectedButtons (\selected -> take 2 (selected ++ [name]))
-    selection <- readIORef selectedButtons
-    if length selection == 2
-        then do
-                mw <- Gtk.applicationGetActiveWindow app
-                case mw of
-                    Just mainWindow -> #destroy mainWindow
-                    Nothing -> putStrLn "Erro: Nenhuma janela ativa encontrada"
-                openNewScreen app selection 
-        else pure ()
