@@ -1,6 +1,6 @@
 import Data.Csv
 import qualified Data.ByteString.Lazy as BL
-import Data.Vector (Vector, (!), (!?), find) 
+import Data.Vector (Vector, (!), (!?), find, map) 
 import Control.Applicative
 import System.Random (randomRIO)
 import Control.Monad
@@ -24,7 +24,6 @@ data Pokemon = Pokemon {
 data PokemonBattle = PokemonBattle {
 	pkmn :: Pokemon,
 	currentHp :: Int,
-	level :: Int,
 	atk1 :: Attack,
 	atk2 :: Attack,
 	atk3 :: Attack,
@@ -67,8 +66,8 @@ generateStat :: Int -> Int -> Int
 generateStat base level =
    (div ((2 * base + 31) * level) 100) + 5
 
-generatePokemon :: Pokemon -> Int -> IO PokemonBattle
-generatePokemon pokemon nivel = do
+generatePokemon :: Pokemon -> IO PokemonBattle
+generatePokemon pokemon = do
 	ataque1 <- coletaAtaque (attack1 pokemon)
 	ataque2 <- coletaAtaque (attack2 pokemon)
 	ataque3 <- coletaAtaque (attack3 pokemon)
@@ -80,7 +79,6 @@ generatePokemon pokemon nivel = do
 	    pokBattle = PokemonBattle {
 		pkmn = pokemon,
 		currentHp = (maxHp pokemon),
-		level = nivel,
 		atk1 = ataque1F,
 		atk2 = ataque2F,
 		atk3 = ataque2F,
@@ -95,28 +93,6 @@ decideQuemVaiPrimeiro pok1 pok2 =
 	if (spd (pkmn pok1)) >= (spd (pkmn pok2))
 		then 1
 		else 2
-
-coletaPokemon :: String -> IO (Either String (Maybe Pokemon))
-coletaPokemon nome = do
-	csvData <- BL.readFile "./data/pokemon.csv"
-	let decoded = decode HasHeader csvData :: Either String (Vector Pokemon)
-	case decoded of
-		Left err -> return $ Left err
-		Right pokemons -> return $ Right (findPokemonByName nome pokemons)
-
-coletaAtaque :: String -> IO (Either String (Maybe Attack))
-coletaAtaque nome = do 
-	csvData <- BL.readFile "./data/ataques.csv"
-	let decoded = decode HasHeader csvData :: Either String (Vector Attack)
-	case decoded of
-		Left err -> return $ Left err
-		Right ataques -> return $ Right (findAttackByName nome ataques)
-
-findAttackByName :: String -> Vector Attack -> Maybe Attack
-findAttackByName nome ataques = find (\a -> name a == nome) ataques
-
-findPokemonByName :: String -> Vector Pokemon -> Maybe Pokemon
-findPokemonByName name pokemons = find (\b -> nome b == name) pokemons
 
 temPP :: PokemonBattle -> Int -> Bool
 temPP pokemon 1 = (pp (atk1 pokemon) /= 0)
@@ -167,8 +143,8 @@ realizaAtaque atacante alvo numAtaque = do
 	    			       	    	    stab = if ((typing ataque) == (tipo1 (pkmn atacante)) || (typing ataque) == (tipo2 (pkmn atacante))) then 1.5 else 1.0
 	      			            	    efficiency = eficiencia (typing ataque) (tipo1 (pkmn alvo)) (tipo2 (pkmn alvo))
 	      			            	    burn = if ((condition atacante) == "Burning" && (category ataque) == "Physical") then 0.5 else 1.0
-						    dano = if (critical) then calculaDano (level atacante) (power ataque) atq def stab efficiency burn 1.5
-								         else calculaDano (level atacante) (power ataque) atq def stab efficiency burn 1.0    
+						    dano = if (critical) then calculaDano (power ataque) atq def stab efficiency burn 1.5
+								         else calculaDano (power ataque) atq def stab efficiency burn 1.0    
 						    newPokemon = alteraHP alvo dano
 						    currentPP = (pp ataque) - 1
 						    newAttack = ataque {pp = currentPP}
@@ -179,9 +155,9 @@ realizaAtaque atacante alvo numAtaque = do
 						return newPokemon2
 	where ataque = pegaAtaque atacante numAtaque
 
-calculaDano :: Int -> Int -> Int -> Int -> Double -> Double -> Double -> Double -> Int
-calculaDano level poder ataque defesa stab tipo burn critico =
-     truncate (((((((fromIntegral level) * 2 / 5) + 2) * (fromIntegral poder ) * ((fromIntegral ataque) / (fromIntegral defesa))) / 50) + 2) * stab * tipo * burn * critico)
+calculaDano :: Int -> Int -> Int -> Double -> Double -> Double -> Double -> Int
+calculaDano poder ataque defesa stab tipo burn critico =
+     truncate ((((((50 * 2 / 5) + 2) * (fromIntegral poder ) * ((fromIntegral ataque) / (fromIntegral defesa))) / 50) + 2) * stab * tipo * burn * critico)
  
 utilizaItem :: PokemonBattle -> Item -> PokemonBattle
 utilizaItem pokemon item = 
@@ -220,6 +196,46 @@ extractMaybe :: Maybe Attack -> Attack
 extractMaybe ataque = case ataque of
 		Just atk -> atk
 		Nothing -> error "Expected Just"
+
+findAttackByName :: String -> Vector Attack -> Maybe Attack
+findAttackByName nome ataques = find (\a -> name a == nome) ataques
+
+findPokemonByName :: String -> Vector Pokemon -> Maybe Pokemon
+findPokemonByName name pokemons = find (\b -> nome b == name) pokemons
+
+coletaPokemons :: IO (Either String (Vector Pokemon))
+coletaPokemons = do
+	csvData <- BL.readFile "./data/pokemon.csv"
+	let decoded = decode HasHeader csvData :: Either String (Vector Pokemon)
+	case decoded of 
+		Left err -> return $ Left err
+		Right pokemons -> return $ Right pokemons
+
+coletaAtaques :: IO (Either String (Vector Attack))
+coletaAtaques = do
+	csvData <- BL.readFile "./data/ataques.csv"
+	let decoded = decode HasHeader csvData :: Either String (Vector Attack)
+	case decoded of 
+		Left err -> return $ Left err
+		Right ataques -> return $ Right ataques
+
+coletaPokemon :: String -> IO (Either String (Maybe Pokemon))
+coletaPokemon nome = do
+	csvData <- BL.readFile "./data/pokemon.csv"
+	let decoded = decode HasHeader csvData :: Either String (Vector Pokemon)
+	case decoded of
+		Left err -> return $ Left err
+		Right pokemons -> return $ Right (findPokemonByName nome pokemons)
+
+coletaAtaque :: String -> IO (Either String (Maybe Attack))
+coletaAtaque nome = do 
+	csvData <- BL.readFile "./data/ataques.csv"
+	let decoded = decode HasHeader csvData :: Either String (Vector Attack)
+	case decoded of
+		Left err -> return $ Left err
+		Right ataques -> return $ Right (findAttackByName nome ataques)
+
+
 main::IO()
 main = do
 	csvData <- BL.readFile "./data/pokemon.csv"
