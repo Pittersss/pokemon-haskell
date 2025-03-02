@@ -3,7 +3,7 @@ import qualified Data.ByteString.Lazy as BL
 import Data.Vector (Vector, (!), (!?), find, map) 
 import Control.Applicative
 import System.Random (randomRIO)
-import Control.Monad
+import Control.Monad 
 
 data Pokemon = Pokemon {
 	nome :: String,
@@ -192,9 +192,9 @@ extractEither val = case val of
 		Right b -> b
 		Left _ -> error "Expect other value"
 
-extractMaybe :: Maybe Attack -> Attack
+extractMaybe :: Maybe a -> a
 extractMaybe ataque = case ataque of
-		Just atk -> atk
+		Just a -> a
 		Nothing -> error "Expected Just"
 
 findAttackByName :: String -> Vector Attack -> Maybe Attack
@@ -235,15 +235,23 @@ coletaAtaque nome = do
 		Left err -> return $ Left err
 		Right ataques -> return $ Right (findAttackByName nome ataques)
 
-
 main::IO()
 main = do
-	result <- coletaAtaques
-	result2 <- coletaPokemons
-	let aux = extractEither result
-	let aux2 = extractEither result2
-	mapM_ print aux
-	mapM_ print aux2
+	pokemon1 <- coletaPokemon "Blastoise"
+	pokemon2 <- coletaPokemon "Charizard"
+	let aux1 = extractEither pokemon1
+	let aux2 = extractMaybe aux1
+	print aux2
+	print pokemon2
+
+
+--main::IO()
+--main = do
+--	result <- coletaPokemons
+--	result2 <- coletaPokemonsBattle
+--	let aux = extractEither result
+--	mapM_ print aux
+--	mapM_ print result2
 --	print "Aelson"
 --	csvData <- BL.readFile "./data/pokemon.csv"
 --	let decoded = decode HasHeader csvData :: Either String (Vector Pokemon)
