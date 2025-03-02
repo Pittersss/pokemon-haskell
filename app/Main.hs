@@ -18,6 +18,7 @@ import Data.Text (Text, pack)
 import GHC.Word (Word32)
 import qualified Data.ByteString.Char8 as BS
 import Battle
+import System.IO.Unsafe (unsafePerformIO)
 
 onButtonClicked :: Gtk.Application -> IORef [Text] -> Text -> Gtk.ApplicationWindow -> IO ()
 onButtonClicked app selectedButtons name window = do
@@ -223,34 +224,59 @@ battleCeneInterface app ref = do
   convertAndApplyStyle button4 "style/battlecene.css"
   convertAndApplyStyle bgImage "style/battlecene.css"
   
-  let pokemons = generateBasePokemon ref
-  let pokemonsBattle = generateBasePokemonBattle pokemons []
+  let pokemonsUsu = generateBasePokemon ref
+  let pokemonsBtlUsu = generateBasePokemonBattle pokemonsUsu []
+
+  let pokemonEn = pokemonsInimigo "cloyster"
+  let pokemonBtlEn = pokemonsBatalhaInimigo pokemonEn
+
+  batalhaUm pokemonsBtlUsu pokemonBtlEn 0 app window
 
   window.show
 
-batalhaUm :: [PokemonBattle] -> [PokemonBattle] -> IO ()
-batalhaUm [] _ = print("VOCÊ PERDEU")
-batalhaUm p1 [] = do
-  let pokemonsInimigoDois = generateBasePokemonStr ["dewgong", "cloyster", "slowbro", "jynx", "lapras"]
-  let pokemonsBatalhaInimigoDois = generateBasePokemonBattle pokemonsInimigoDois []
-  print("VOCÊ GANHOU")
-  batalhaDois p1 pokemonsBatalhaInimigoDois
-batalhaUm p1 p2 = do
-  decide <- decideQuemVaiPrimeiro p1 p2
-  if decide == 1 then do
-    print("É seu turno: Escolha um ataque")
-    mostraAtaques p1
-    opcao <- readLn :: IO Int
-    let ataque = escolhaAtaque (p1 !! 0) opcao
-    case ataque of
-        Right ataque -> do 
-          p2 <- realizaAtaque p1 p2 ataque
-        Left erro -> batalhaUm p1 p2
-  else print("cu")
-  
+converteIOparaPokemonBattle :: IO PokemonBattle -> PokemonBattle
+converteIOparaPokemonBattle ioPkmnBattle = unsafePerformIO ioPkmnBattle
 
-batalhaDois :: [PokemonBattle] -> [PokemonBattle] -> IO ()
-batalhaDois _ _ = print("")
+swapFirst :: Int -> [Pokemon] -> [Pokemon]
+swapFirst _ [] = []
+swapFirst _ [x] = [x]
+swapFirst 0 (x:xs) = (x:xs)
+swapFirst i (x:xs)
+  | i < 0 || i >= length (x:xs) = error "Índice fora dos limites"
+  | otherwise = (xs !! (i - 1)) : take (i - 1) xs ++ [x] ++ drop i xs
+
+batalhaUm :: [PokemonBattle] -> PokemonBattle -> Int -> Gtk.Application -> Gtk.ApplicationWindow -> IO ()
+batalhaUm usuPkmns enPkmn turno app window = do 
+  if (currentHp (usuPkmns !! 0) <= 0) then
+    batalhaUm (tail usuPkmns) enPkmn turno app window
+  else if (currentHp enPkmn) <= 0 then do
+    let pokemonEn = pokemonsInimigo "charizard"
+    let pokemonBtlEn = pokemonsBatalhaInimigo pokemonEn
+    batalhaDois usuPkmns pokemonBtlEn 0 app window
+  else if turno == 0 then do
+    print("Pokemon Atual: " ++ (nome (pkmn (usuPkmns !! 0))))
+    print("Pokemon Adversário: " ++ (nome (pkmn enPkmn)))
+    let primeiroTurno = decideQuemVaiPrimeiro (usuPkmns !! 0) enPkmn
+    batalhaUm usuPkmns enPkmn primeiroTurno app window
+  else if turno == 1 then do
+    print("Digite o ataque escolhido")
+    mostraAtaques (usuPkmns !! 0)
+    atkEscolhido <- readLn :: IO Int
+    let enNewState = converteIOparaPokemonBattle (realizaAtaque (usuPkmns !! 0) enPkmn atkEscolhido)
+    print((currentHp (usuPkmns !! 0)))
+    print((currentHp enNewState))
+    batalhaUm usuPkmns enNewState 2 app window
+  else if turno == 2 then do
+    -- lógica do ataque random vai ser implementada ainda
+    print("O inimigo usou: " ++ (name (atk1 enPkmn)))
+    let usuNewState = converteIOparaPokemonBattle (realizaAtaque enPkmn (usuPkmns !! 0) 1)
+    print((currentHp usuNewState))
+    print((currentHp enPkmn))
+    batalhaUm ([usuNewState] ++ (tail usuPkmns)) enPkmn 1 app window
+  else print("")
+
+batalhaDois :: [PokemonBattle] -> PokemonBattle -> Int -> Gtk.Application -> Gtk.ApplicationWindow -> IO ()
+batalhaDois a b c d e = print("")
 
 --Inicio da Aplicação
 activate :: Gtk.Application -> IO ()
