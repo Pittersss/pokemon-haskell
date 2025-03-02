@@ -175,7 +175,7 @@ calculaAcerto accuracy = do
 	return (rand <= accuracy)
 
 calculaHp :: Int -> Int -> Int -> Int
-calculaHp hpMax hpCurr vida = 
+calculaHp hpCurr hpMax vida = 
 	if (hpCurr + vida) <= 0
 		then 0
 		else if (hpCurr + vida) >= hpMax
@@ -244,8 +244,9 @@ main = do
 	pkmnBtl1 <- generatePokemon aux1
 	pkmnBtl2 <- generatePokemon aux2
 	ataqueExecutado <- realizaAtaque pkmnBtl1 pkmnBtl2 1	
+	ataqueExecutado2 <- realizaAtaque pkmnBtl1 ataqueExecutado 1
 	print pkmnBtl2
-	print ataqueExecutado
+	print ataqueExecutado2
 
 --main::IO()
 --main = do
