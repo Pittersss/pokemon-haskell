@@ -29,7 +29,7 @@ data PokemonBattle = PokemonBattle {
 	atk3 :: Attack,
 	atk4 :: Attack,
 	condition :: String
-}
+} deriving (Show)
 
 data Attack = Attack {
 	name :: String,
@@ -145,7 +145,7 @@ realizaAtaque atacante alvo numAtaque = do
 	      			            	    burn = if ((condition atacante) == "Burning" && (category ataque) == "Physical") then 0.5 else 1.0
 						    dano = if (critical) then calculaDano (power ataque) atq def stab efficiency burn 1.5
 								         else calculaDano (power ataque) atq def stab efficiency burn 1.0    
-						    newPokemon = alteraHP alvo dano
+						    newPokemon = alteraHP alvo (-dano)
 						    currentPP = (pp ataque) - 1
 						    newAttack = ataque {pp = currentPP}
 						    newPokemon2 = if (numAtaque == 1) then newPokemon {atk1 = newAttack}
@@ -239,11 +239,13 @@ main::IO()
 main = do
 	pokemon1 <- coletaPokemon "Blastoise"
 	pokemon2 <- coletaPokemon "Charizard"
-	let aux1 = extractEither pokemon1
-	let aux2 = extractMaybe aux1
-	print aux2
-	print pokemon2
-
+	let aux1 = extractMaybe $ extractEither pokemon1
+	let aux2 = extractMaybe $ extractEither pokemon2
+	pkmnBtl1 <- generatePokemon aux1
+	pkmnBtl2 <- generatePokemon aux2
+	ataqueExecutado <- realizaAtaque pkmnBtl1 pkmnBtl2 1	
+	print pkmnBtl2
+	print ataqueExecutado
 
 --main::IO()
 --main = do
