@@ -238,22 +238,29 @@ coletaAtaque nome = do
 
 main::IO()
 main = do
-	csvData <- BL.readFile "./data/pokemon.csv"
-	let decoded = decode HasHeader csvData :: Either String (Vector Pokemon)
-	case decoded of 
-		Left err -> putStrLn $ "Erro parsing CSV: " ++ err
-		Right pokemons -> do
-			ataque1 <- coletaAtaque "Thunder"
-			ataque2 <- coletaAtaque "Thunderbolt"
-			ataque3 <- coletaAtaque "Fire Blast"
-			ataque4 <- coletaAtaque "Surf"
-			mapM_ print pokemons
-			let atk1 = extractMaybe (extractEither ataque1)
-			    atk2 = extractMaybe (extractEither ataque2)
-			    atk3 = extractMaybe (extractEither ataque3)
-			    atk4 = extractMaybe (extractEither ataque4)
+	result <- coletaAtaques
+	result2 <- coletaPokemons
+	let aux = extractEither result
+	let aux2 = extractEither result2
+	mapM_ print aux
+	mapM_ print aux2
+--	print "Aelson"
+--	csvData <- BL.readFile "./data/pokemon.csv"
+--	let decoded = decode HasHeader csvData :: Either String (Vector Pokemon)
+--	case decoded of 
+--		Left err -> putStrLn $ "Erro parsing CSV: " ++ err
+--		Right pokemons -> do
+--			ataque1 <- coletaAtaque "Thunder"
+--			ataque2 <- coletaAtaque "Thunderbolt"
+--			ataque3 <- coletaAtaque "Fire Blast"
+--			ataque4 <- coletaAtaque "Surf"
+--			mapM_ print pokemons
+--			let atk1 = extractMaybe (extractEither ataque1)
+--			    atk2 = extractMaybe (extractEither ataque2)
+--			    atk3 = extractMaybe (extractEither ataque3)
+--			    atk4 = extractMaybe (extractEither ataque4)
 			    --newPok = generatePokemon  
-			mapM_ print pokemons 
+--			mapM_ print pokemons 
 --	result <- coletaAtaque "Thunder"
 --	case result of
 --		Left err -> putStrLn $ "Error: "

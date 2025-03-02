@@ -1,13 +1,13 @@
-nome,hp,fAtk,fDef,sAtk,sDef,spd
-Pidgeot,Voador,Normal,83,80,75,70,70,101
-Charizard,Voador,Fogo,78,84,78,109,85,100
-Blastoise,Agua,Agua,79,83,100,85,105,78
-Venusaur,Grama,Veneno,80,82,83,100,100,80
-Pikachu,Eletrico,Eletrico,35,55,40,50,50,90
-Butterfree,Inseto,Voador,60,45,50,90,80,70
-Hitmonlee,Lutador,Lutador,50,120,53,25,110,87
-Cloyster,Agua,Gelo,50,95,180,85,45,70
-Seadra,Agua,Agua,55,65,95,95,45,85
-Gengar,Veneno,Fantasma,60,65,60,130,75,110
-Onix,Pedra,Terra,35,45,160,30,45,70
-Alakazam,Psiquico,Psiquico,55,50,45,135,95,120
+nome,tipo1,tipo2,hp,fAtk,fDef,sAtk,sDef,spd,attack1,attack2,attack3,attack4
+Pidgeot,Voador,Normal,83,80,75,70,70,101,Bug Buzz,Acrobatics,Body Slam,Sky Uppercut
+Charizard,Voador,Fogo,78,84,78,109,85,100,Flamethrower,Aeroblast,Fire Blast,Aura Sphere
+Blastoise,Agua,Agua,79,83,100,85,105,78,Surf,Hydro Pump,Body Slam,Ice Beam
+Venusaur,Grama,Veneno,80,82,83,100,100,80,Energy Ball,Power Whip,Sludge Wave,Earth Power
+Pikachu,Eletrico,Eletrico,35,55,40,50,50,90,Thunder,Thunderbolt,Bug Buzz,Cross Chop
+Butterfree,Inseto,Voador,60,45,50,90,80,70,Bug Buzz,Aeroblast,Psychic,Sludge Wave
+Hitmonlee,Lutador,Lutador,50,120,53,25,110,87,Sky Uppercut,Stone Edge,Earthquake,Icicle Crash
+Cloyster,Agua,Gelo,50,95,180,85,45,70,Icicle Crash,Crabhammer,Stone Edge,Cross Chop
+Seadra,Agua,Agua,55,65,95,95,45,85,Surf,Hydro Pump,Dragon Pulse,Ice Beam
+Gengar,Veneno,Fantasma,60,65,60,130,75,110,Shadow Ball,Psychic,Sludge Wave,Thunderbolt
+Onix,Pedra,Terra,35,45,160,30,45,70,Stone Edge,Earthquake,Rock Slide,Body Slam
+Alakazam,Psiquico,Psiquico,55,50,45,135,95,120,Psychic,Energy Ball,Aura Sphere,Shadow Ball
