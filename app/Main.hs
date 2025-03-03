@@ -1,9 +1,10 @@
 import Data.Csv
 import qualified Data.ByteString.Lazy as BL
-import Data.Vector (Vector, (!), (!?), find, map) 
+import Data.Vector (Vector, (!), (!?), find, map, toList, fromList) 
 import Control.Applicative
 import System.Random (randomRIO)
 import Control.Monad 
+import Data.Text (Text, unpack, pack)
 
 data Pokemon = Pokemon {
 	nome :: String,
@@ -45,7 +46,7 @@ data Attack = Attack {
 data Item = Item {
 	nomeItem :: String,
 	qtde :: Int
-}
+} deriving (Show)
 
 instance FromRecord Pokemon where
 	parseRecord v
@@ -81,7 +82,7 @@ generatePokemon pokemon = do
 		currentHp = (maxHp pokemon),
 		atk1 = ataque1F,
 		atk2 = ataque2F,
-		atk3 = ataque2F,
+		atk3 = ataque3F,
 		atk4 = ataque4F,
 		condition = ""
 	    }
@@ -102,9 +103,9 @@ temPP pokemon 4 = (pp (atk4 pokemon) /= 0)
 temPP pokemon x = False
 
 calculaCritico :: Int -> IO Bool
-calculaCritico critical = do
+calculaCritico criticalChance = do
 	rand <- randomRIO(1, 100)
-	return (rand <= critical * 4)
+	return (rand <= criticalChance * 4)
 
 calculaRandom :: IO Double
 calculaRandom = do
@@ -112,8 +113,7 @@ calculaRandom = do
 	return (rand / 100)
 
 calculaEficiencia :: String -> String -> Double
-calculaEficiencia tipoAtaque tipoAlvo =
-	1.0
+calculaEficiencia tipoAtaque tipoAlvo = 1.0
 
 eficiencia :: String -> String -> String -> Double
 eficiencia tipoAtaque tipo1Alvo tipo2Alvo = (calculaEficiencia tipoAtaque tipo1Alvo) * (calculaEficiencia tipoAtaque tipo2Alvo)
@@ -136,15 +136,20 @@ realizaAtaque atacante alvo numAtaque = do
 		Just ataque -> do
 				resultado <- calculaAcerto (accuracy ataque)
 			        critical <- calculaCritico (critical ataque)	
-				if (not resultado)
+				if (not resultado || (currentHp atacante) == 0)
 					then return alvo
 					else do let atq = if (category ataque) == "Physical" then (fAtk (pkmn atacante)) else (sAtk (pkmn atacante))
 						    def = if (category ataque) == "Physical" then (fDef (pkmn alvo)) else (sDef (pkmn alvo))
 	    			       	    	    stab = if ((typing ataque) == (tipo1 (pkmn atacante)) || (typing ataque) == (tipo2 (pkmn atacante))) then 1.5 else 1.0
 	      			            	    efficiency = eficiencia (typing ataque) (tipo1 (pkmn alvo)) (tipo2 (pkmn alvo))
-	      			            	    burn = if ((condition atacante) == "Burning" && (category ataque) == "Physical") then 0.5 else 1.0
-						    dano = if (critical) then calculaDano (power ataque) atq def stab efficiency burn 1.5
-								         else calculaDano (power ataque) atq def stab efficiency burn 1.0    
+	      			            	    condicaoNegativa = if (((condition atacante) == "Queimando" || (condition atacante) == "Congelado") 
+										&& (category ataque) == "Fisico") then 0.5 
+								       else if (((condition atacante) == "Envenenado" || (condition atacante) == "Paralisado") 
+										&& (category ataque) == "Fisico") then 0.5
+								       else if ((condition atacante) == "Sonolento") then 0.75
+								       else 1.0
+						    dano = if (critical) then calculaDano (power ataque) atq def stab efficiency condicaoNegativa 1.5
+								         else calculaDano (power ataque) atq def stab efficiency condicaoNegativa 1.0    
 						    newPokemon = alteraHP alvo (-dano)
 						    currentPP = (pp ataque) - 1
 						    newAttack = ataque {pp = currentPP}
@@ -198,10 +203,28 @@ extractMaybe ataque = case ataque of
 		Nothing -> error "Expected Just"
 
 findAttackByName :: String -> Vector Attack -> Maybe Attack
-findAttackByName nome ataques = find (\a -> name a == nome) ataques
+findAttackByName nomeAtk ataques = find (\a -> name a == nomeAtk) ataques
 
 findPokemonByName :: String -> Vector Pokemon -> Maybe Pokemon
-findPokemonByName name pokemons = find (\b -> nome b == name) pokemons
+findPokemonByName namePkm pokemons = find (\b -> nome b == namePkm) pokemons
+
+converteVectorToList :: Vector a -> [a]
+converteVectorToList v = Data.Vector.toList v
+
+converteListToVector :: [a] -> Vector a
+converteListToVector l = Data.Vector.fromList l
+
+coletaPokemonsPuro :: IO (Vector Pokemon)
+coletaPokemonsPuro = do
+	csvData <- BL.readFile "./data/pokemon.csv"
+	let decoded = decode HasHeader csvData :: Either String (Vector Pokemon)
+	return $ extractEither decoded
+
+coletaAtaquesPuro :: IO (Vector Attack)
+coletaAtaquesPuro = do
+	csvData <- BL.readFile "./data/ataques.csv"
+	let decoded = decode HasHeader csvData :: Either String (Vector Attack)
+	return $ extractEither decoded
 
 coletaPokemons :: IO (Either String (Vector Pokemon))
 coletaPokemons = do
@@ -220,34 +243,66 @@ coletaAtaques = do
 		Right ataques -> return $ Right ataques
 
 coletaPokemon :: String -> IO (Either String (Maybe Pokemon))
-coletaPokemon nome = do
+coletaPokemon nomePkmn = do
 	csvData <- BL.readFile "./data/pokemon.csv"
 	let decoded = decode HasHeader csvData :: Either String (Vector Pokemon)
 	case decoded of
 		Left err -> return $ Left err
-		Right pokemons -> return $ Right (findPokemonByName nome pokemons)
+		Right pokemons -> return $ Right (findPokemonByName nomePkmn pokemons)
 
 coletaAtaque :: String -> IO (Either String (Maybe Attack))
-coletaAtaque nome = do 
+coletaAtaque nomeAtk = do 
 	csvData <- BL.readFile "./data/ataques.csv"
 	let decoded = decode HasHeader csvData :: Either String (Vector Attack)
 	case decoded of
 		Left err -> return $ Left err
-		Right ataques -> return $ Right (findAttackByName nome ataques)
+		Right ataques -> return $ Right (findAttackByName nomeAtk ataques)
+
+geraPokemonsUsuarioS :: [String] -> IO [PokemonBattle]
+geraPokemonsUsuarioS pokemons = do
+	if null pokemons then return []
+	else do
+		pkmn <- coletaPokemon (head pokemons)
+		let pokemon = extractMaybe $ extractEither pkmn
+		pkmnBattle <- generatePokemon pokemon
+		lista <- geraPokemonsUsuarioS (tail pokemons)
+		return ([pkmnBattle] ++ lista)	
+
+
+geraPokemonsUsuario :: [Text] -> IO [PokemonBattle]
+geraPokemonsUsuario pokemons = do
+	if null pokemons then return []
+	else do
+		let str = unpack (head pokemons)
+		pkmn <- coletaPokemon str
+		let pokemon = extractMaybe $ extractEither pkmn
+		pkmnBattle <- generatePokemon pokemon
+		lista <- geraPokemonsUsuario (tail pokemons)
+		return ([pkmnBattle] ++ lista)	
 
 main::IO()
 main = do
-	pokemon1 <- coletaPokemon "Blastoise"
-	pokemon2 <- coletaPokemon "Charizard"
-	let aux1 = extractMaybe $ extractEither pokemon1
-	let aux2 = extractMaybe $ extractEither pokemon2
-	pkmnBtl1 <- generatePokemon aux1
-	pkmnBtl2 <- generatePokemon aux2
-	ataqueExecutado <- realizaAtaque pkmnBtl1 pkmnBtl2 1	
-	ataqueExecutado2 <- realizaAtaque pkmnBtl1 ataqueExecutado 1
-	print pkmnBtl2
-	print ataqueExecutado2
-
+	let str1 = "Blastoise"
+	let str2 = "Charizard"
+	let str3 = "Venusaur"
+	let txt1 = pack str1
+	let txt2 = pack str2
+	let txt3 = pack str3
+	let lista = [txt1] ++ [txt2] ++ [txt3]
+	aux <- geraPokemonsUsuario lista
+	mapM_ print aux
+--	pokemon1 <- coletaPokemon "Blastoise"
+--	pokemon2 <- coletaPokemon "Charizard"
+--	pokemon3 <- coletaAtaque "Thunder"
+--	let aux1 = extractMaybe $ extractEither pokemon1
+--	let aux2 = extractMaybe $ extractEither pokemon2
+--	pkmnBtl1 <- generatePokemon aux1
+--	pkmnBtl2 <- generatePokemon aux2
+--	ataqueExecutado <- realizaAtaque pkmnBtl1 pkmnBtl2 1	
+--	ataqueExecutado2 <- realizaAtaque pkmnBtl1 ataqueExecutado 1
+--	print pkmnBtl2
+--	print ataqueExecutado2
+	
 --main::IO()
 --main = do
 --	result <- coletaPokemons
