@@ -44,7 +44,7 @@ data Attack = Attack {
 } deriving (Show)
 
 data Item = Item {
-	nomeItem :: String,
+	nomeItem :: Text,
 	qtde :: Int
 } deriving (Show)
 
@@ -188,15 +188,26 @@ calculaDanoFinal atacante alvo numAtaque = do
 calculaDano :: Int -> Int -> Int -> Double -> Double -> Double -> Double -> Int
 calculaDano poder ataque defesa stab tipo burn critico =
      truncate ((((((50 * 2 / 5) + 2) * (fromIntegral poder ) * ((fromIntegral ataque) / (fromIntegral defesa))) / 50) + 2) * stab * tipo * burn * critico)
+
+
+--utilizaItemS :: PokemonBattle -> String -> IO PokemonBattle
+--utilizaItemS pokemon nome = do
+--	csvData <- BL.readFile "../data/itens.csv"
+--	let decoded = decode HasHeader csvData :: Either String (Vector Item)
+--	let itens = extractEither decoded
+--	let item = findItemByName nome itens
+--	let tupla = utilizaItem pokemon item
+--	BL.writeFile "../data/itens.csv" (encodeByName (headerOrder (undefined :: Item)) (V.toList updatedItems))
  
-utilizaItem :: PokemonBattle -> Item -> PokemonBattle
-utilizaItem pokemon item = 
-	if (itemName == "HyperPotion")
-		then newPokemonH
-		else newPokemonF
-	where itemName = (nomeItem item)
-	      newPokemonH = alteraHP pokemon 120
-	      newPokemonF = pokemon { condition = ""}
+--utilizaItem :: PokemonBattle -> Item -> (PokemonBattle, Item)
+--utilizaItem pokemon item = 
+--	let newQtde = (qtde item) - 1 in
+--	if (itemName == "HyperPotion")
+--		then (newPokemonH, item {qtde = newQtde})
+--		else (newPokemonF, item {qtde = newQtde})
+--	where itemName = (nomeItem item)
+---	      newPokemonH = alteraHP pokemon 120
+--	      newPokemonF = pokemon { condition = ""}
 	
 
 calculaAcerto :: Int -> IO Bool
@@ -232,6 +243,9 @@ findAttackByName nomeAtk ataques = find (\a -> name a == nomeAtk) ataques
 
 findPokemonByName :: String -> Vector Pokemon -> Maybe Pokemon
 findPokemonByName namePkm pokemons = find (\b -> nome b == namePkm) pokemons
+
+findItemByName :: Text -> Vector Item -> Maybe Item
+findItemByName nameItm itens = find (\c -> nomeItem c == nameItm) itens
 
 converteVectorToList :: Vector a -> [a]
 converteVectorToList v = Data.Vector.toList v
@@ -307,58 +321,17 @@ geraPokemonsUsuario pokemons = do
 
 main::IO()
 main = do
-	let str1 = "Blastoise"
-	let str2 = "Charizard"
-	let str3 = "Venusaur"
-	let txt1 = pack str1
-	let txt2 = pack str2
-	let txt3 = pack str3
-	let lista = [txt1] ++ [txt2] ++ [txt3]
-	aux <- geraPokemonsUsuario lista
-	mapM_ print aux
---	pokemon1 <- coletaPokemon "Blastoise"
---	pokemon2 <- coletaPokemon "Charizard"
---	pokemon3 <- coletaAtaque "Thunder"
---	let aux1 = extractMaybe $ extractEither pokemon1
---	let aux2 = extractMaybe $ extractEither pokemon2
---	pkmnBtl1 <- generatePokemon aux1
---	pkmnBtl2 <- generatePokemon aux2
---	ataqueExecutado <- realizaAtaque pkmnBtl1 pkmnBtl2 1	
---	ataqueExecutado2 <- realizaAtaque pkmnBtl1 ataqueExecutado 1
---	print pkmnBtl2
---	print ataqueExecutado2
-	
---main::IO()
---main = do
---	result <- coletaPokemons
---	result2 <- coletaPokemonsBattle
---	let aux = extractEither result
---	mapM_ print aux
---	mapM_ print result2
---	print "Aelson"
---	csvData <- BL.readFile "./data/pokemon.csv"
---	let decoded = decode HasHeader csvData :: Either String (Vector Pokemon)
---	case decoded of 
---		Left err -> putStrLn $ "Erro parsing CSV: " ++ err
---		Right pokemons -> do
---			ataque1 <- coletaAtaque "Thunder"
---			ataque2 <- coletaAtaque "Thunderbolt"
---			ataque3 <- coletaAtaque "Fire Blast"
---			ataque4 <- coletaAtaque "Surf"
---			mapM_ print pokemons
---			let atk1 = extractMaybe (extractEither ataque1)
---			    atk2 = extractMaybe (extractEither ataque2)
---			    atk3 = extractMaybe (extractEither ataque3)
---			    atk4 = extractMaybe (extractEither ataque4)
-			    --newPok = generatePokemon  
---			mapM_ print pokemons 
---	result <- coletaAtaque "Thunder"
---	case result of
---		Left err -> putStrLn $ "Error: "
---		Right Nothing -> putStrLn "Ataque não encontrado"
---		Right (Just ataque) -> putStrLn $ "Ataque encontrado: " ++ show ataque
---	csvData <- BL.readFile "./data/pokemon.csv"
---	let decoded = decode HasHeader csvData :: Either String (Vector Pokemon)
---	case decoded of
---	       	Left err  -> putStrLn $ "Error parsing CSV: " ++ err
---	      	Right pokemons -> do mapM_ print pokemons
+	pokemon1 <- coletaPokemon "Blastoise"
+	pokemon2 <- coletaPokemon "Charizard"
+	let aux1 = extractMaybe $ extractEither pokemon1
+	let aux2 = extractMaybe $ extractEither pokemon2
+	pkmnBtl1 <- generatePokemon aux1
+	pkmnBtl2 <- generatePokemon aux2
+	ataqueExecutado <- realizaAtaque pkmnBtl1 pkmnBtl2 1	
+	ataqueExecutado2 <- realizaAtaque pkmnBtl1 ataqueExecutado 1
+	let newPkmn = pkmnBtl2 {condition = "Poison"}
+	print pkmnBtl2
+	print ataqueExecutado
+	print ataqueExecutado2
+	print newPkmn
+
