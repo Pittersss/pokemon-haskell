@@ -160,6 +160,31 @@ realizaAtaque atacante alvo numAtaque = do
 						return newPokemon2
 	where ataque = pegaAtaque atacante numAtaque
 
+calculaDanoFinal :: PokemonBattle -> PokemonBattle -> Int -> IO Int
+calculaDanoFinal atacante alvo numAtaque = do
+	case ataque of
+		Nothing -> return 0
+		Just ataque -> do
+				resultado <- calculaAcerto (accuracy ataque)
+			        critical <- calculaCritico (critical ataque)	
+				if (not resultado || (currentHp atacante) == 0)
+					then return 0
+					else do let atq = if (category ataque) == "Physical" then (fAtk (pkmn atacante)) else (sAtk (pkmn atacante))
+						    def = if (category ataque) == "Physical" then (fDef (pkmn alvo)) else (sDef (pkmn alvo))
+	    			       	    	    stab = if ((typing ataque) == (tipo1 (pkmn atacante)) || (typing ataque) == (tipo2 (pkmn atacante))) then 1.5 else 1.0
+	      			            	    efficiency = eficiencia (typing ataque) (tipo1 (pkmn alvo)) (tipo2 (pkmn alvo))
+	      			            	    condicaoNegativa = if (((condition atacante) == "Queimando" || (condition atacante) == "Congelado") 
+										&& (category ataque) == "Fisico") then 0.5 
+								       else if (((condition atacante) == "Envenenado" || (condition atacante) == "Paralisado") 
+										&& (category ataque) == "Fisico") then 0.5
+								       else if ((condition atacante) == "Sonolento") then 0.75
+								       else 1.0
+						    dano = if (critical) then calculaDano (power ataque) atq def stab efficiency condicaoNegativa 1.5
+								         else calculaDano (power ataque) atq def stab efficiency condicaoNegativa 1.0    
+						return dano
+	where ataque = pegaAtaque atacante numAtaque
+
+
 calculaDano :: Int -> Int -> Int -> Double -> Double -> Double -> Double -> Int
 calculaDano poder ataque defesa stab tipo burn critico =
      truncate ((((((50 * 2 / 5) + 2) * (fromIntegral poder ) * ((fromIntegral ataque) / (fromIntegral defesa))) / 50) + 2) * stab * tipo * burn * critico)
