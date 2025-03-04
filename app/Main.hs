@@ -120,24 +120,28 @@ eficiencia tipoAtaque tipo1Alvo tipo2Alvo = (calculaEficiencia tipoAtaque tipo1A
 
 pegaAtaque :: PokemonBattle -> Int -> Maybe Attack
 pegaAtaque pokemon num = 
-	if (num == 1) then do 
-			return (atk1 pokemon)
+	if (num == 1) then do
+			let ataque1 = atk1 pokemon
+			return ataque1
 	else if (num == 2) then do
-			return (atk2 pokemon)
+			let ataque2 = atk2 pokemon
+			return ataque2
 	else if (num == 3) then do
-			return (atk3 pokemon)
+			let ataque3 = atk3 pokemon
+			return ataque3
 	else do
-		return (atk4 pokemon)
+		let ataque4 = atk4 pokemon
+		return ataque4
 
-realizaAtaque :: PokemonBattle -> PokemonBattle -> Int -> IO PokemonBattle
+realizaAtaque :: PokemonBattle -> PokemonBattle -> Int -> IO (PokemonBattle,PokemonBattle)
 realizaAtaque atacante alvo numAtaque = do
-	case ataque of
-		Nothing -> return alvo
+	case ataquePkmn of
+		Nothing -> return (atacante,alvo)
 		Just ataque -> do
 				resultado <- calculaAcerto (accuracy ataque)
 			        critical <- calculaCritico (critical ataque)	
 				if (not resultado || (currentHp atacante) == 0)
-					then return alvo
+					then return (atacante,alvo)
 					else do let atq = if (category ataque) == "Physical" then (fAtk (pkmn atacante)) else (sAtk (pkmn atacante))
 						    def = if (category ataque) == "Physical" then (fDef (pkmn alvo)) else (sDef (pkmn alvo))
 	    			       	    	    stab = if ((typing ataque) == (tipo1 (pkmn atacante)) || (typing ataque) == (tipo2 (pkmn atacante))) then 1.5 else 1.0
@@ -150,15 +154,15 @@ realizaAtaque atacante alvo numAtaque = do
 								       else 1.0
 						    dano = if (critical) then calculaDano (power ataque) atq def stab efficiency condicaoNegativa 1.5
 								         else calculaDano (power ataque) atq def stab efficiency condicaoNegativa 1.0    
-						    newPokemon = alteraHP alvo (-dano)
+						    newAlvo = alteraHP alvo (-dano)
 						    currentPP = (pp ataque) - 1
 						    newAttack = ataque {pp = currentPP}
-						    newPokemon2 = if (numAtaque == 1) then newPokemon {atk1 = newAttack}
-								  else if (numAtaque == 2) then newPokemon {atk2 = newAttack}
-								  else if (numAtaque == 3) then newPokemon {atk3 = newAttack}
-								  else newPokemon {atk4 = newAttack}
-						return newPokemon2
-	where ataque = pegaAtaque atacante numAtaque
+						    newAtacante = if (numAtaque == 1) then atacante {atk1 = newAttack}
+								  else if (numAtaque == 2) then atacante {atk2 = newAttack}
+								  else if (numAtaque == 3) then atacante {atk3 = newAttack}
+								  else atacante {atk4 = newAttack}
+						return (newAtacante, newAlvo)
+	where ataquePkmn = pegaAtaque atacante numAtaque
 
 calculaDanoFinal :: PokemonBattle -> PokemonBattle -> Int -> IO Int
 calculaDanoFinal atacante alvo numAtaque = do
@@ -327,11 +331,9 @@ main = do
 	let aux2 = extractMaybe $ extractEither pokemon2
 	pkmnBtl1 <- generatePokemon aux1
 	pkmnBtl2 <- generatePokemon aux2
-	ataqueExecutado <- realizaAtaque pkmnBtl1 pkmnBtl2 1	
-	ataqueExecutado2 <- realizaAtaque pkmnBtl1 ataqueExecutado 1
+	novosPokemons <- realizaAtaque pkmnBtl1 pkmnBtl2 2	
 	let newPkmn = pkmnBtl2 {condition = "Poison"}
-	print pkmnBtl2
-	print ataqueExecutado
-	print ataqueExecutado2
-	print newPkmn
+	print novosPokemons
+--	print ataqueExecutado
+--	print ataqueExecutado2
 
