@@ -1,0 +1,104 @@
+#customButton {
+    background: transparent;
+    border: 2px solid red;
+    color: red;
+}
+
+#customButton:hover {
+    background: rgba(255, 0, 0, 0.1);
+}
+
+/* Container da imagem */
+#backgroundContainer {
+    padding: 0px;
+    margin: 0px;
+    background: rgba(200, 250, 20, 0.94);
+    min-width: 1000px;
+    min-height: 1000px; 
+}
+
+#titleLabel {
+    margin-bottom: 24px;
+    font-weight: bold;
+    color: rgb(255, 255, 255);
+}
+
+#button_Charizard,
+#button_Blastoise,
+#button_Venusaur,
+#button_Pikachu,
+#button_Pidgeot,
+#button_Butterfree,
+#button_Alakazam,
+#button_Gengar,
+#button_Onix,
+#button_Seadra,
+#button_Hitmonlee,
+#button_Cloyster {
+    background: transparent;
+    border: 2px outset rgb(56, 76, 227);
+    padding: 5px;
+    min-width: 50px;
+    min-height: 50px; 
+}
+
+#button_Charizard:hover,
+#button_Blastoise:hover,
+#button_Venusaur:hover,
+#button_Pikachu:hover,
+#button_Pidgeot:hover,
+#button_Butterfree:hover,
+#button_Alakazam:hover,
+#button_Gengar:hover,
+#button_Onix:hover,
+#button_Seadra:hover,
+#button_Hitmonlee:hover,
+#button_Cloyster:hover
+{
+    background: rgba(148, 162, 193, 0.36);
+}
+
+#overlay {
+    padding: 0px;
+    margin: 0px;
+  
+}
+
+#dialogBox
+{
+    border: 2px outset black;
+}
+#hBattleBox
+{
+    border: 2px outset black;
+    padding: 5px;
+}
+#jogar,
+#bag_btn,
+#pokemon_btn,
+#atq_btn,
+#run_btn
+{
+    background: transparent;
+    border: 2px outset rgb(56, 76, 227);
+    padding: 5px;
+    min-width: 70px;
+    min-height: 60px; 
+}
+
+#bg_image
+{
+    padding: 0px;
+    margin: 0px;
+    border: 2px outset black;
+    min-width: 1000px;
+    min-height: 1000px; 
+}
+#ini_image
+{
+    padding: 0px;
+    margin: 0px;
+    border: 2px outset black;
+    min-width: 1100px;
+    min-height: 1100px; 
+}
