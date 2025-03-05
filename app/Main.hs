@@ -44,7 +44,7 @@ data Attack = Attack {
 } deriving (Show)
 
 data Item = Item {
-	nomeItem :: Text,
+	nomeItem :: String,
 	qtde :: Int
 } deriving (Show)
 
@@ -57,6 +57,11 @@ instance FromRecord Pokemon where
 instance FromRecord Attack where
 	parseRecord v
 		| length v == 8 = Attack <$> v .! 0 <*> v .! 1 <*> v .! 2 <*> v .! 3 <*> v .! 4 <*> v .! 5 <*> v .! 6 <*> v .! 7
+		| otherwise     = fail "Invalid number of columns"
+
+instance FromRecord Item where
+	parseRecord v
+		| length v == 2 = Item <$> v .! 0 <*> v .! 1
 		| otherwise     = fail "Invalid number of columns"
 
 generateHp :: Int -> Int -> Int
@@ -113,10 +118,40 @@ calculaRandom = do
 	return (rand / 100)
 
 calculaEficiencia :: String -> String -> Double
-calculaEficiencia tipoAtaque tipoAlvo = 1.0
+calculaEficiencia "Agua" "Fogo" = 2.0
+calculaEficiencia "Fogo" "Grama" = 2.0
+calculaEficiencia "Grama" "Agua" = 2.0
+calculaEficiencia "Gelo" "Terra" = 2.0
+calculaEficiencia "Terra" "Eletrico" = 2.0
+calculaEficiencia "Eletrico" "Voador" = 2.0
+calculaEficiencia "Voador" "Lutador" = 2.0
+calculaEficiencia "Lutador" "Gelo" = 2.0
+calculaEficiencia "Dragao" "Dragao" = 2.0
+calculaEficiencia "Fantasma" "Fantasma" = 2.0
+calculaEficiencia "Inseto" "Psiquico" = 2.0
+calculaEficiencia "Veneno" "Grama" = 2.0
+calculaEficiencia "Grama" "Terra" = 2.0
+calculaEficiencia "Terra" "Fogo" = 2.0
+calculaEficiencia "Fogo" "Gelo" = 2.0
+calculaEficiencia "Gelo" "Voador" = 2.0
+calculaEficiencia "Voador" "Inseto" = 2.0
+calculaEficiencia "Inseto" "Grama" = 2.0
+calculaEficiencia "Agua" "Pedra" = 2.0
+calculaEficiencia "Eletrico" "Agua" = 2.0
+calculaEficiencia "Lutador" "Normal" = 2.0
+calculaEficiencia "Fantasma" "Psiquico" = 2.0
+calculaEficiencia "Pedra" "Inseto" = 2.0
+calculaEficiencia "Eletrico" "Terra" = 0.0
+calculaEficiencia "Normal" "Fantasma" = 0.0
+calculaEficiencia "Lutador" "Fantasma" = 0.0
+calculaEficiencia "Terra" "Voador" = 0.0
+calculaEficiencia a b = 1.0
 
 eficiencia :: String -> String -> String -> Double
 eficiencia tipoAtaque tipo1Alvo tipo2Alvo = (calculaEficiencia tipoAtaque tipo1Alvo) * (calculaEficiencia tipoAtaque tipo2Alvo)
+
+ehSuperEfetivo :: String -> String -> String -> Bool
+ehSuperEfetivo tipoAtaque tipo1Alvo tipo2Alvo = if (eficiencia tipoAtaque tipo1Alvo tipo2Alvo) >= 2.0 then True else False
 
 pegaAtaque :: PokemonBattle -> Int -> Maybe Attack
 pegaAtaque pokemon num = 
@@ -133,6 +168,32 @@ pegaAtaque pokemon num =
 		let ataque4 = atk4 pokemon
 		return ataque4
 
+determinaCondicao :: String -> String
+determinaCondicao tipoAtaque = 
+	if (tipoAtaque == "Veneno") then "Envenenado"
+	else if (tipoAtaque == "Eletrico") then "Paralisado"
+	else if (tipoAtaque == "Gelo") then "Congelado"
+	else if (tipoAtaque == "Psiquico") then "Sonolento"
+	else if (tipoAtaque == "Fogo") then "Queimando"
+	else ""
+	
+podeAplicarStatus :: IO Bool
+podeAplicarStatus = do
+	rand <- randomRIO(1, 100) :: IO Int
+	return (rand <= 10)
+
+escolheMelhorAtaque :: PokemonBattle -> PokemonBattle -> IO Int
+escolheMelhorAtaque atacante alvo = do
+	let typing1 = (tipo1 (pkmn alvo))
+	let typing2 = (tipo2 (pkmn alvo))
+	if (ehSuperEfetivo (typing (atk1 atacante)) typing1 typing2) then return 1
+	else if (ehSuperEfetivo (typing (atk2 atacante)) typing1 typing2) then return 2
+	else if (ehSuperEfetivo (typing (atk3 atacante)) typing1 typing2) then return 3
+	else if (ehSuperEfetivo (typing (atk4 atacante)) typing1 typing2) then return 4
+	else do
+		aux <- randomRIO(1,4) :: IO Int
+		return aux
+
 realizaAtaque :: PokemonBattle -> PokemonBattle -> Int -> IO (PokemonBattle,PokemonBattle)
 realizaAtaque atacante alvo numAtaque = do
 	case ataquePkmn of
@@ -140,9 +201,11 @@ realizaAtaque atacante alvo numAtaque = do
 		Just ataque -> do
 				resultado <- calculaAcerto (accuracy ataque)
 			        critical <- calculaCritico (critical ataque)	
+				status <- podeAplicarStatus
 				if (not resultado || (currentHp atacante) == 0)
 					then return (atacante,alvo)
-					else do let atq = if (category ataque) == "Physical" then (fAtk (pkmn atacante)) else (sAtk (pkmn atacante))
+					else do 	
+						let atq = if (category ataque) == "Physical" then (fAtk (pkmn atacante)) else (sAtk (pkmn atacante))
 						    def = if (category ataque) == "Physical" then (fDef (pkmn alvo)) else (sDef (pkmn alvo))
 	    			       	    	    stab = if ((typing ataque) == (tipo1 (pkmn atacante)) || (typing ataque) == (tipo2 (pkmn atacante))) then 1.5 else 1.0
 	      			            	    efficiency = eficiencia (typing ataque) (tipo1 (pkmn alvo)) (tipo2 (pkmn alvo))
@@ -154,7 +217,9 @@ realizaAtaque atacante alvo numAtaque = do
 								       else 1.0
 						    dano = if (critical) then calculaDano (power ataque) atq def stab efficiency condicaoNegativa 1.5
 								         else calculaDano (power ataque) atq def stab efficiency condicaoNegativa 1.0    
-						    newAlvo = alteraHP alvo (-dano)
+						    alvoAux = alteraHP alvo (-dano)
+						    statusEffect = if (status) then determinaCondicao (typing ataque) else (condition alvo)
+						    newAlvo = alvoAux {condition = statusEffect}
 						    currentPP = (pp ataque) - 1
 						    newAttack = ataque {pp = currentPP}
 						    newAtacante = if (numAtaque == 1) then atacante {atk1 = newAttack}
@@ -193,25 +258,17 @@ calculaDano :: Int -> Int -> Int -> Double -> Double -> Double -> Double -> Int
 calculaDano poder ataque defesa stab tipo burn critico =
      truncate ((((((50 * 2 / 5) + 2) * (fromIntegral poder ) * ((fromIntegral ataque) / (fromIntegral defesa))) / 50) + 2) * stab * tipo * burn * critico)
 
-
---utilizaItemS :: PokemonBattle -> String -> IO PokemonBattle
---utilizaItemS pokemon nome = do
---	csvData <- BL.readFile "../data/itens.csv"
---	let decoded = decode HasHeader csvData :: Either String (Vector Item)
---	let itens = extractEither decoded
---	let item = findItemByName nome itens
---	let tupla = utilizaItem pokemon item
---	BL.writeFile "../data/itens.csv" (encodeByName (headerOrder (undefined :: Item)) (V.toList updatedItems))
- 
---utilizaItem :: PokemonBattle -> Item -> (PokemonBattle, Item)
---utilizaItem pokemon item = 
---	let newQtde = (qtde item) - 1 in
---	if (itemName == "HyperPotion")
---		then (newPokemonH, item {qtde = newQtde})
---		else (newPokemonF, item {qtde = newQtde})
---	where itemName = (nomeItem item)
----	      newPokemonH = alteraHP pokemon 120
---	      newPokemonF = pokemon { condition = ""}
+utilizaItem :: PokemonBattle -> Item -> (PokemonBattle, Item)
+utilizaItem pokemon item = 
+	let newQtde = (qtde item) - 1 in
+	if (itemName == "HyperPotion" && newQtde > 0)
+		then (newPokemonH, item {qtde = newQtde})
+	else if (itemName == "Full Restore" && newQtde > 0) 
+		then (newPokemonF, item {qtde = newQtde})
+	else (pokemon, item)
+	where itemName = (nomeItem item)
+	      newPokemonH = alteraHP pokemon 120
+	      newPokemonF = pokemon { condition = ""}
 	
 
 calculaAcerto :: Int -> IO Bool
@@ -248,7 +305,7 @@ findAttackByName nomeAtk ataques = find (\a -> name a == nomeAtk) ataques
 findPokemonByName :: String -> Vector Pokemon -> Maybe Pokemon
 findPokemonByName namePkm pokemons = find (\b -> nome b == namePkm) pokemons
 
-findItemByName :: Text -> Vector Item -> Maybe Item
+findItemByName :: String -> Vector Item -> Maybe Item
 findItemByName nameItm itens = find (\c -> nomeItem c == nameItm) itens
 
 converteVectorToList :: Vector a -> [a]
@@ -325,15 +382,15 @@ geraPokemonsUsuario pokemons = do
 
 main::IO()
 main = do
-	pokemon1 <- coletaPokemon "Blastoise"
-	pokemon2 <- coletaPokemon "Charizard"
+	pokemon1 <- coletaPokemon "Charizard"
+	pokemon2 <- coletaPokemon "Blastoise"
 	let aux1 = extractMaybe $ extractEither pokemon1
 	let aux2 = extractMaybe $ extractEither pokemon2
 	pkmnBtl1 <- generatePokemon aux1
 	pkmnBtl2 <- generatePokemon aux2
-	novosPokemons <- realizaAtaque pkmnBtl1 pkmnBtl2 2	
-	let newPkmn = pkmnBtl2 {condition = "Poison"}
-	print novosPokemons
+	(novoAtacante, novoAlvo) <- realizaAtaque pkmnBtl1 pkmnBtl2 1
+	(novoAtacante2, novoAlvo2) <- realizaAtaque novoAtacante novoAlvo 1
+	print novoAlvo2
 --	print ataqueExecutado
 --	print ataqueExecutado2
 
