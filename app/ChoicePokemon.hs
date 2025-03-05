@@ -11,6 +11,17 @@ import Data.GI.Base
 import Data.Text (Text, pack)
 import GHC.Word (Word32)
 
+import qualified Data.Text as T
+import qualified Data.Text.IO as TIO
+import qualified GI.Gio as Gio
+import qualified GI.Gtk as Gtk
+import Data.GI.Base
+import qualified GI.GdkPixbuf as GdkPixbuf
+import Data.IORef
+import Data.GI.Base
+import Data.Text (Text, pack)
+import GHC.Word (Word32)
+
 cssPriority :: Word32
 cssPriority = fromIntegral Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
 
@@ -21,6 +32,8 @@ applyStyle widget path = do
   styleContext <- Gtk.widgetGetStyleContext widget
   Gtk.styleContextAddProvider styleContext provider cssPriority
 
+convertAndApplyStyle :: Gtk.IsWidget a => a -> String -> IO ()
+convertAndApplyStyle widgetToConvert path = do
 convertAndApplyStyle :: Gtk.IsWidget a => a -> String -> IO ()
 convertAndApplyStyle widgetToConvert path = do
   maybeWidget <- castTo Gtk.Widget widgetToConvert
