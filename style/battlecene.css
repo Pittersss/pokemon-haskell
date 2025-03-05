@@ -1,0 +1,38 @@
+#dialogBox
+{
+    border: 2px outset black;
+}
+#hBattleBox
+{
+    border: 2px outset black;
+    padding: 5px;
+}
+#jogar,
+#bag_btn,
+#pokemon_btn,
+#atq_btn,
+#run_btn
+{
+    background: transparent;
+    border: 2px outset rgb(56, 76, 227);
+    padding: 5px;
+    min-width: 70px;
+    min-height: 60px; 
+}
+
+#bg_image
+{
+    padding: 0px;
+    margin: 0px;
+    border: 2px outset black;
+    min-width: 1000px;
+    min-height: 1000px; 
+}
+#ini_image
+{
+    padding: 0px;
+    margin: 0px;
+    border: 2px outset black;
+    min-width: 1100px;
+    min-height: 1100px; 
+}
