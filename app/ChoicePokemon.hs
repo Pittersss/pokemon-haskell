@@ -10,7 +10,6 @@ import Data.IORef
 import Data.GI.Base
 import Data.Text (Text, pack)
 import GHC.Word (Word32)
-import Battle (openNewScreen)
 
 cssPriority :: Word32
 cssPriority = fromIntegral Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
