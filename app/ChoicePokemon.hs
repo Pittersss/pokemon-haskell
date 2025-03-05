@@ -34,8 +34,6 @@ applyStyle widget path = do
 
 convertAndApplyStyle :: Gtk.IsWidget a => a -> String -> IO ()
 convertAndApplyStyle widgetToConvert path = do
-convertAndApplyStyle :: Gtk.IsWidget a => a -> String -> IO ()
-convertAndApplyStyle widgetToConvert path = do
   maybeWidget <- castTo Gtk.Widget widgetToConvert
   case maybeWidget of
     Just widget -> applyStyle widget path
