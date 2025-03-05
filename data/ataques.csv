@@ -22,9 +22,9 @@ Thunderbolt,Eletrico,Especial,95,100,15,15,1
 Gunk Shot,Veneno,Fisico,120,70,5,5,1
 Poison Jab,Veneno,Fisico,80,100,20,20,1
 Sludge Wave,Veneno,Especial,95,100,10,10,1
-Stone Edge,Rocha,Fisico,100,80,5,5,3
-Rock Slide,Rocha,Fisico,75,90,10,10,1
-Power Gem,Rocha,Especial,70,100,20,20,1
+Stone Edge,Pedra,Fisico,100,80,5,5,3
+Rock Slide,Pedra,Fisico,75,90,10,10,1
+Power Gem,Pedra,Especial,70,100,20,20,1
 Earthquake,Terra,Fisico,100,100,10,10,1
 Earth Power,Terra,Especial,90,100,10,10,1
 Psychic,Psiquico,Especial,90,100,10,10,1

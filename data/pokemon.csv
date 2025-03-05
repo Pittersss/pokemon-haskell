@@ -1,22 +1,22 @@
 nome,tipo1,tipo2,hp,fAtk,fDef,sAtk,sDef,spd,attack1,attack2,attack3,attack4
-Pidgeot,Voador,Normal,83,80,75,70,70,101,Bug Buzz,Acrobatics,Body Slam,Sky Uppercut
-Charizard,Voador,Fogo,78,84,78,109,85,100,Flamethrower,Aeroblast,Fire Blast,Aura Sphere
-Blastoise,Agua,Agua,79,83,100,85,105,78,Surf,Hydro Pump,Body Slam,Ice Beam
-Venusaur,Grama,Veneno,80,82,83,100,100,80,Energy Ball,Power Whip,Sludge Wave,Earth Power
-Pikachu,Eletrico,Eletrico,35,55,40,50,50,90,Thunder,Thunderbolt,Bug Buzz,Cross Chop
-Butterfree,Inseto,Voador,60,45,50,90,80,70,Bug Buzz,Aeroblast,Psychic,Sludge Wave
-Hitmonlee,Lutador,Lutador,50,120,53,25,110,87,Sky Uppercut,Stone Edge,Earthquake,Icicle Crash
-Cloyster,Agua,Gelo,50,95,180,85,45,70,Icicle Crash,Crabhammer,Stone Edge,Cross Chop
-Seadra,Agua,Agua,55,65,95,95,45,85,Surf,Hydro Pump,Dragon Pulse,Ice Beam
-Gengar,Veneno,Fantasma,60,65,60,130,75,110,Shadow Ball,Psychic,Sludge Wave,Thunderbolt
-Onix,Pedra,Terra,35,45,160,30,45,70,Stone Edge,Earthquake,Rock Slide,Body Slam
-Alakazam,Psiquico,Psiquico,55,50,45,135,95,120,Psychic,Energy Ball,Aura Sphere,Shadow Ball
-Lapras,Agua,Gelo,130,85,80,85,95,60,Surf,Hydro Pump,Ice Beam,Body Slam
-Dewgong,Agua,Gelo,90,70,80,70,95,70,Ice Beam,Blizzard,Surf,Hydro Pump
-Slowbro,Agua,Psiquico,95,75,110,100,80,30,Surf,Psychic,Fire Blast,Shadow Ball
-Machamp,Lutador,Lutador,90,130,80,65,85,55,Stone Edge,Cross Chop,Earthquake,Blaze Kick
-Arbok,Veneno,Veneno,60,85,69,65,79,80,Earthquake,Gunk Shot,Poison Jab,Dragon Tail
-Golbat,Veneno,Voador,75,80,70,65,75,90,Acrobatics,Gunk Shot,Zen Headbutt,Shadow Claw
-Gyarados,Agua,Voador,95,125,79,60,100,81,CrabHammer,Acrobatics,Body Slam,Zen Headbutt
-Dragonite,Dragao,Voador,91,134,95,100,100,80,Dragon Claw,Acrobatics,Bolt Strike,Shadow Claw
-Aerodactyl,Pedra,Voador,80,105,65,60,75,130,Stone Edge,Earthquake,Acrobatics,Crabhammer
+Pidgeot,Voador,Normal,188,119,113,107,107,144,Bug Buzz,Acrobatics,Body Slam,Sky Uppercut
+Charizard,Voador,Fogo,182,124,117,154,125,143,Flamethrower,Aeroblast,Fire Blast,Dragon Pulse
+Blastoise,Agua,Agua,183,123,143,125,149,117,Surf,Hydro Pump,Body Slam,Ice Beam
+Venusaur,Grama,Veneno,184,122,123,143,143,119,Energy Ball,Power Whip,Sludge Wave,Earth Power
+Pikachu,Eletrico,Eletrico,130,89,71,83,83,131,Thunder,Thunderbolt,Bug Buzz,Cross Chop
+Butterfree,Inseto,Voador,160,77,83,131,119,107,Bug Buzz,Aeroblast,Psychic,Sludge Wave
+Hitmonlee,Lutador,Lutador,148,167,87,53,155,128,Sky Uppercut,Stone Edge,Earthquake,Icicle Crash
+Cloyster,Agua,Gelo,148,137,239,125,77,107,Icicle Crash,Crabhammer,Stone Edge,Cross Chop
+Seadra,Agua,Agua,148,137,239,125,77,107,Surf,Hydro Pump,Dragon Pulse,Ice Beam
+Gengar,Veneno,Fantasma,160,101,95,179,113,155,Shadow Ball,Psychic,Sludge Wave,Thunderbolt
+Onix,Pedra,Terra,130,77,215,59,77,107,Stone Edge,Earthquake,Rock Slide,Body Slam
+Alakazam,Psiquico,Psiquico,154,83,77,185,137,167,Psychic,Energy Ball,Aura Sphere,Shadow Ball
+Lapras,Agua,Gelo,244,125,119,125,137,95,Surf,Hydro Pump,Ice Beam,Body Slam
+Dewgong,Agua,Gelo,196,107,119,107,137,107,Ice Beam,Blizzard,Surf,Hydro Pump
+Slowbro,Agua,Psiquico,202,113,155,143,119,59,Surf,Psychic,Fire Blast,Shadow Ball
+Machamp,Lutador,Lutador,196,176,119,101,125,89,Stone Edge,Cross Chop,Earthquake,Blaze Kick
+Arbok,Veneno,Veneno,160,125,106,101,118,119,Earthquake,Gunk Shot,Poison Jab,Dragon Tail
+Golbat,Veneno,Voador,178,119,107,101,113,131,Acrobatics,Gunk Shot,Zen Headbutt,Shadow Claw
+Gyarados,Agua,Voador,202,173,118,95,143,120,CrabHammer,Acrobatics,Body Slam,Zen Headbutt
+Dragonite,Dragao,Voador,197,184,137,143,143,119,Dragon Claw,Acrobatics,Bolt Strike,Shadow Claw
+Aerodactyl,Pedra,Voador,184,149,101,95,113,179,Stone Edge,Earthquake,Acrobatics,Crabhammer

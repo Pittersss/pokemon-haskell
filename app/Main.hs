@@ -6,6 +6,7 @@ import System.Random (randomRIO)
 import Control.Monad 
 import Data.Text (Text, unpack, pack)
 import System.IO
+import Historico
 
 data Pokemon = Pokemon {
 	nome :: String,
@@ -120,23 +121,31 @@ calculaRandom = do
 
 calculaEficiencia :: String -> String -> Double
 calculaEficiencia "Agua" "Fogo" = 2.0
+calculaEficiencia "Fogo" "Agua" = 0.5
 calculaEficiencia "Fogo" "Grama" = 2.0
+calculaEficiencia "Grama" "Fogo" = 0.5
 calculaEficiencia "Grama" "Agua" = 2.0
+calculaEficiencia "Agua" "Grama" = 0.5
 calculaEficiencia "Gelo" "Terra" = 2.0
 calculaEficiencia "Terra" "Eletrico" = 2.0
 calculaEficiencia "Eletrico" "Voador" = 2.0
 calculaEficiencia "Voador" "Lutador" = 2.0
+calculaEficiencia "Lutador" "Voador" = 0.5
 calculaEficiencia "Lutador" "Gelo" = 2.0
 calculaEficiencia "Dragao" "Dragao" = 2.0
 calculaEficiencia "Fantasma" "Fantasma" = 2.0
 calculaEficiencia "Inseto" "Psiquico" = 2.0
 calculaEficiencia "Veneno" "Grama" = 2.0
+calculaEficiencia "Grama" "Veneno" = 0.5
 calculaEficiencia "Grama" "Terra" = 2.0
 calculaEficiencia "Terra" "Fogo" = 2.0
 calculaEficiencia "Fogo" "Gelo" = 2.0
+calculaEficiencia "Gelo" "Fogo" = 0.5
 calculaEficiencia "Gelo" "Voador" = 2.0
 calculaEficiencia "Voador" "Inseto" = 2.0
+calculaEficiencia "Inseto" "Voador" = 0.5
 calculaEficiencia "Inseto" "Grama" = 2.0
+calculaEficiencia "Grama" "Inseto" = 0.5
 calculaEficiencia "Agua" "Pedra" = 2.0
 calculaEficiencia "Eletrico" "Agua" = 2.0
 calculaEficiencia "Lutador" "Normal" = 2.0
@@ -146,6 +155,9 @@ calculaEficiencia "Eletrico" "Terra" = 0.0
 calculaEficiencia "Normal" "Fantasma" = 0.0
 calculaEficiencia "Lutador" "Fantasma" = 0.0
 calculaEficiencia "Terra" "Voador" = 0.0
+calculaEficiencia "Fogo" "Dragao" = 0.5
+calculaEficiencia "Agua" "Dragao" = 0.5
+calculaEficiencia "Grama" "Dragao" = 0.5
 calculaEficiencia a b = 1.0
 
 eficiencia :: String -> String -> String -> Double
@@ -233,31 +245,6 @@ realizaAtaque atacante alvo numAtaque = do
 								  else atacante {atk4 = newAttack}
 						return (newAtacante, newAlvo)
 	where ataquePkmn = pegaAtaque atacante numAtaque
-
-calculaDanoFinal :: PokemonBattle -> PokemonBattle -> Int -> IO Int
-calculaDanoFinal atacante alvo numAtaque = do
-	case ataque of
-		Nothing -> return 0
-		Just ataque -> do
-				resultado <- calculaAcerto (accuracy ataque)
-			        critical <- calculaCritico (critical ataque)	
-				if (not resultado || (currentHp atacante) == 0)
-					then return 0
-					else do let atq = if (category ataque) == "Physical" then (fAtk (pkmn atacante)) else (sAtk (pkmn atacante))
-						    def = if (category ataque) == "Physical" then (fDef (pkmn alvo)) else (sDef (pkmn alvo))
-	    			       	    	    stab = if ((typing ataque) == (tipo1 (pkmn atacante)) || (typing ataque) == (tipo2 (pkmn atacante))) then 1.5 else 1.0
-	      			            	    efficiency = eficiencia (typing ataque) (tipo1 (pkmn alvo)) (tipo2 (pkmn alvo))
-	      			            	    condicaoNegativa = if (((condition atacante) == "Queimando" || (condition atacante) == "Congelado") 
-										&& (category ataque) == "Fisico") then 0.5 
-								       else if (((condition atacante) == "Envenenado" || (condition atacante) == "Paralisado") 
-										&& (category ataque) == "Fisico") then 0.5
-								       else if ((condition atacante) == "Sonolento") then 0.75
-								       else 1.0
-						    dano = if (critical) then calculaDano (power ataque) atq def stab efficiency condicaoNegativa 1.5
-								         else calculaDano (power ataque) atq def stab efficiency condicaoNegativa 1.0    
-						return dano
-	where ataque = pegaAtaque atacante numAtaque
-
 
 calculaDano :: Int -> Int -> Int -> Double -> Double -> Double -> Double -> Int
 calculaDano poder ataque defesa stab tipo burn critico =
@@ -417,37 +404,6 @@ pickAttack pokemon numAtk =
 	else if (numAtk == 3) then (name (atk3 pokemon))
 	else name (atk4 pokemon)
 
-pegaParte :: [a] -> Int -> Int -> Int -> [a]
-pegaParte lista i j index =
-	if index < i then pegaParte (tail lista) i j (index + 1)
-	else if index > j then []
-	else if (index >= i && index <= j) then ([head lista] ++ (pegaParte (tail lista) i j (index + 1)))
-	else []
-
-particionaLista :: [PokemonBattle] -> Int -> Int -> [[PokemonBattle]]
-particionaLista lista i j = [a, b, c]
-	where a = pegaParte lista 0 (i-1) 0
-	      b = pegaParte lista i j 0
-	      c = pegaParte lista (j+1) ((length lista)-1) 0
-
-trocaHeadTail :: [PokemonBattle] -> [[PokemonBattle]]
-trocaHeadTail pokemons = do
-	let tamanho = length pokemons
-	let a = drop (tamanho -1) pokemons
-	let b = take (tamanho -2) (tail pokemons)
-	let c = head pokemons
-	return (a ++ b ++ [c])
-
---swap :: [PokemonBattle] -> Int -> Int -> [[PokemonBattle]]
---swap lista i j = do 
---	let newLista = particionaLista lista i j
---	return newLista
---	let lista1 = lista !! 0
---	let lista2 = lista !! 1
---	let lista3 = lista !! 2
-	--let newLista2 = trocaHeadTail lista2
---	return (lista1 ++ lista3)
-
 batalhaI :: [PokemonBattle] -> [PokemonBattle] -> [String] -> IO ()
 batalhaI usuPkmns enPkmns rivais = do
 	let hyperPotions = Item {nomeItem = "Hyper Potion", qtde = 5}
@@ -458,9 +414,20 @@ batalhaI usuPkmns enPkmns rivais = do
 batalha :: [PokemonBattle] -> [PokemonBattle] -> [String] -> [Item] -> IO ()
 batalha usuPkmns enPkmns rivais itens 
 	| null usuPkmns = do
+		saveData <- carregaOuCriaSave
+  		let newDataLoss = incrementaDerrota saveData
+  		writeSave newDataLoss
+  		output <- getEstatisticas
+  		putStrLn output
 		putStrLn $ "Você perdeu, tente novamente"
 --              choicePokemonInterfaceW app
 	| null enPkmns = do
+		saveData <- carregaOuCriaSave
+      		let newDataWin = incrementaVitoria saveData
+      		writeSave newDataWin
+      		output <- getEstatisticas
+      		putStrLn output
+		saveData <- carregaOuCriaSave
 		putStrLn $ "Você agora você é o campeão da Elite 4"
 --              Gio.applicationQuit app
 	| currentHp (head usuPkmns) <= 0 = do
@@ -472,7 +439,7 @@ batalha usuPkmns enPkmns rivais itens
 	| otherwise = do
 		infoBtl (head usuPkmns) (head enPkmns) itens	
 		putStrLn $ "O que você deseja fazer?"
-		putStrLn $ "1. Usar uma Hyper Potion, 2. Usar um Full Restore ou 3. Atacar"
+		putStrLn $ "1. Usar uma Hyper Potion, 2. Usar um Full Restore, 3. Atacar ou 4. Trocar o pokemon atual pelo próximo"
 		decision <- readLn :: IO Int
 		melhorAtaque <- escolheMelhorAtaque (head enPkmns) (head usuPkmns)
 		if decision == 1
@@ -505,7 +472,16 @@ batalha usuPkmns enPkmns rivais itens
 				else do
 					putStrLn "Acabaram os Full Restore. Faça outra coisa"
 					batalha usuPkmns enPkmns rivais itens
-		else do
+		else if (decision == 4 && length usuPkmns > 1)
+			then do
+				let listUsu = (drop 1 usuPkmns) ++ [head usuPkmns]
+				putStrLn $ "Seu pokemon atual sairá e entrará em seu lugar o próximo: " ++ (nome (pkmn (head listUsu)))
+				(novoAtacante, novoAlvo) <- realizaAtaque (head enPkmns) (head listUsu) melhorAtaque
+				let newListUsu = [novoAlvo] ++ (tail listUsu)
+				let newListEn = [novoAtacante] ++ (tail enPkmns)
+				batalha newListUsu newListEn rivais itens
+		else if (decision == 3) 
+			then do
 			putStrLn $ ""
 			putStrLn $ "Qual ataque você deseja usar? "
 			imprimeAtaques (head usuPkmns)
@@ -542,24 +518,29 @@ batalha usuPkmns enPkmns rivais itens
 			else do 
 				putStrLn $ "Entrada inválida"
 				batalha usuPkmns enPkmns rivais itens
+		else do
+			putStrLn $ "Entrada inválida"
+			batalha usuPkmns enPkmns rivais itens
 main::IO()
 main = do
-	pokemon1 <- coletaPokemon "Blastoise"
-	pokemon2 <- coletaPokemon "Charizard"
-	pokemon3 <- coletaPokemon "Venusaur"
-	pokemon4 <- coletaPokemon "Aerodactyl"
-	let aux1 = extractMaybe $ extractEither pokemon1
-	let aux2 = extractMaybe $ extractEither pokemon2
-	let aux3 = extractMaybe $ extractEither pokemon3
-	let aux4 = extractMaybe $ extractEither pokemon4
-	pkmnBtl1 <- generatePokemon aux1
-	pkmnBtl2 <- generatePokemon aux2
-	pkmnBtl3 <- generatePokemon aux3
-	pkmnBtl4 <- generatePokemon aux4
-	let item1 = Item {nomeItem = "Hyper Potion", qtde = 5}
-	let item2 = Item {nomeItem = "Full Restore", qtde = 5}
-	let nPkmnBtl1 = pkmnBtl1 {condition = "Envenenado"}
-	let list1 = [nPkmnBtl1, pkmnBtl2, pkmnBtl3, pkmnBtl4]
-	print "Aelson"
-	batalha [nPkmnBtl1, pkmnBtl2, pkmnBtl3, pkmnBtl4] [pkmnBtl2, pkmnBtl4] ["Aelson","Everton"] [item1, item2]
+	aux1 <- coletaPokemon "Blastoise"
+	aux2 <- coletaPokemon "Charizard"
+	aux3 <- coletaPokemon "Cloyster"
+	aux4 <- coletaPokemon "Dragonite"
+	aux5 <- coletaPokemon "Butterfree"
+	aux6 <- coletaPokemon "Hitmonlee"
+
+	let pk1 = extractMaybe $ extractEither aux1
+	let pk2 = extractMaybe $ extractEither aux2
+	let pk3 = extractMaybe $ extractEither aux3
+	let pk4 = extractMaybe $ extractEither aux4
+	let pk5 = extractMaybe $ extractEither aux5
+	let pk6 = extractMaybe $ extractEither aux6
+	pkmn1 <- generatePokemon pk1
+	pkmn2 <- generatePokemon pk2
+	pkmn3 <- generatePokemon pk3
+	pkmn4 <- generatePokemon pk4
+	pkmn5 <- generatePokemon pk5
+	pkmn6 <- generatePokemon pk6
+	batalhaI [pkmn1, pkmn2, pkmn3, pkmn4, pkmn5, pkmn6] [pkmn2, pkmn4, pkmn6] ["Aelson","Bia","Everton"]
 --      mapM_ print $ trocaHeadTail [pkmnBtl1, pkmnBtl2, pkmnBtl3, pkmnBtl4]
