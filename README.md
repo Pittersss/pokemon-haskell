@@ -13,10 +13,9 @@
 * [Pedro Henrique Malaquias da Silva](https://github.com/Pittersss)
 
 ## Instruções para a Execução
-
+Acesse e instale o Haskell em: https://www.haskell.org/ghcup/<br>
 ### Instalar o Cabal
 #### Windows
-Acesse https://www.haskell.org/ghcup/<br>
 Baixe e instale o GHCup<br>
 Após a instalação execute no seu cmd:<br>
 ghcup install cabal latest
