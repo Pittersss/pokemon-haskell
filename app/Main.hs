@@ -440,8 +440,8 @@ ataquesAliado app aliados inimigos numBatalha itens = do
   window.show
 
 -- dps tira, só pra saber onde ta na batalha
-printando :: PokemonBattle -> PokemonBattle -> Int -> String
-printando pkmn1 pkmn2 numAtk = do
+geraNomePokEAtk :: PokemonBattle -> PokemonBattle -> Int -> String
+geraNomePokEAtk pkmn1 pkmn2 numAtk = do
   let ataque = pegaAtaque pkmn1 numAtk
   case ataque of
     Nothing -> "n pegou o ataque"
@@ -495,7 +495,7 @@ atacando app aliados inimigos numAtk numBatalha itens = do
                         then mataPok inimigos
                       else setLista inimigos inimigoMachucado
     
-    let novaLabel = printando (head aliados) (head inimigos) numAtk ++ "\n" ++ acerto ++ "\nhp anterior: " ++ show (currentHp (head inimigos)) ++ " / hp atual: " ++ show (currentHp inimigoMachucado)
+    let novaLabel = geraNomePokEAtk (head aliados) (head inimigos) numAtk ++ "\n" ++ acerto ++ "\nhp anterior: " ++ show (currentHp (head inimigos)) ++ " / hp atual: " ++ show (currentHp inimigoMachucado)
     set dialogLabel [#label := T.pack novaLabel]
 
     on button #clicked $ do
@@ -568,7 +568,7 @@ turnInimigo app inimigos aliados numBatalha itens = do
                   then "errou !"
                 else "acertou"
 
-  let novaLabel = printando (head inimigos) (head aliados) escolha ++ "\n" ++ acerto ++ "\nhp anterior: " ++ show (currentHp (head aliados)) ++ " / hp atual: " ++ show (currentHp aliadoMachucado)
+  let novaLabel = geraNomePokEAtk (head inimigos) (head aliados) escolha ++ "\n" ++ acerto ++ "\nhp anterior: " ++ show (currentHp (head aliados)) ++ " / hp atual: " ++ show (currentHp aliadoMachucado)
   set dialogLabel [#label := T.pack novaLabel]
 
   button <- new Gtk.Button [#label := "proximo",
