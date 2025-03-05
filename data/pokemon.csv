@@ -1,6 +1,6 @@
 nome,tipo1,tipo2,hp,fAtk,fDef,sAtk,sDef,spd,attack1,attack2,attack3,attack4
-Pidgeot,Voador,Normal,83,80,75,70,70,101,Bug Buzz,Acrobatics,Body Slam,Sky Uppercut
-Charizard,Voador,Fogo,78,84,78,109,85,100,Flamethrower,Aeroblast,Fire Blast,Aura Sphere
+Pidgeot,Voador,Normal,83,80,75,70,70,101,Shadow Claw,Acrobatics,Body Slam,Sky Uppercut
+Charizard,Voador,Fogo,78,84,78,109,85,100,Flamethrower,Aeroblast,Fire Blast,Dragon Pulse
 Blastoise,Agua,Agua,79,83,100,85,105,78,Surf,Hydro Pump,Body Slam,Ice Beam
 Venusaur,Grama,Veneno,80,82,83,100,100,80,Energy Ball,Power Whip,Sludge Wave,Earth Power
 Pikachu,Eletrico,Eletrico,35,55,40,50,50,90,Thunder,Thunderbolt,Bug Buzz,Cross Chop

@@ -83,6 +83,7 @@ executable pokemon-game
                            random >= 1.2 && < 1.4,
                            cassava,
                            text,
+                           directory
                            
     -- Directories containing source files.
     hs-source-dirs:   app

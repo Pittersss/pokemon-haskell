@@ -8,9 +8,10 @@ import System.Random (randomRIO)
 import Control.Monad 
 import Data.Text (Text, unpack, pack)
 import System.IO
+import Historico
 
 data Pokemon = Pokemon {
-	nome :: String,	
+	nome :: String,
 	tipo1 :: String,
 	tipo2 :: String,
 	maxHp :: Int,
@@ -122,23 +123,31 @@ calculaRandom = do
 
 calculaEficiencia :: String -> String -> Double
 calculaEficiencia "Agua" "Fogo" = 2.0
+calculaEficiencia "Fogo" "Agua" = 0.5
 calculaEficiencia "Fogo" "Grama" = 2.0
+calculaEficiencia "Grama" "Fogo" = 0.5
 calculaEficiencia "Grama" "Agua" = 2.0
+calculaEficiencia "Agua" "Grama" = 0.5
 calculaEficiencia "Gelo" "Terra" = 2.0
 calculaEficiencia "Terra" "Eletrico" = 2.0
 calculaEficiencia "Eletrico" "Voador" = 2.0
 calculaEficiencia "Voador" "Lutador" = 2.0
+calculaEficiencia "Lutador" "Voador" = 0.5
 calculaEficiencia "Lutador" "Gelo" = 2.0
 calculaEficiencia "Dragao" "Dragao" = 2.0
 calculaEficiencia "Fantasma" "Fantasma" = 2.0
 calculaEficiencia "Inseto" "Psiquico" = 2.0
 calculaEficiencia "Veneno" "Grama" = 2.0
+calculaEficiencia "Grama" "Veneno" = 0.5
 calculaEficiencia "Grama" "Terra" = 2.0
 calculaEficiencia "Terra" "Fogo" = 2.0
 calculaEficiencia "Fogo" "Gelo" = 2.0
+calculaEficiencia "Gelo" "Fogo" = 0.5
 calculaEficiencia "Gelo" "Voador" = 2.0
 calculaEficiencia "Voador" "Inseto" = 2.0
+calculaEficiencia "Inseto" "Voador" = 0.5
 calculaEficiencia "Inseto" "Grama" = 2.0
+calculaEficiencia "Grama" "Inseto" = 0.5
 calculaEficiencia "Agua" "Pedra" = 2.0
 calculaEficiencia "Eletrico" "Agua" = 2.0
 calculaEficiencia "Lutador" "Normal" = 2.0
@@ -148,6 +157,9 @@ calculaEficiencia "Eletrico" "Terra" = 0.0
 calculaEficiencia "Normal" "Fantasma" = 0.0
 calculaEficiencia "Lutador" "Fantasma" = 0.0
 calculaEficiencia "Terra" "Voador" = 0.0
+calculaEficiencia "Fogo" "Dragao" = 0.5
+calculaEficiencia "Agua" "Dragao" = 0.5
+calculaEficiencia "Grama" "Dragao" = 0.5
 calculaEficiencia a b = 1.0
 
 eficiencia :: String -> String -> String -> Double
@@ -235,31 +247,6 @@ realizaAtaque atacante alvo numAtaque = do
 								  else atacante {atk4 = newAttack}
 						return (newAtacante, newAlvo)
 	where ataquePkmn = pegaAtaque atacante numAtaque
-
-calculaDanoFinal :: PokemonBattle -> PokemonBattle -> Int -> IO Int
-calculaDanoFinal atacante alvo numAtaque = do
-	case ataque of
-		Nothing -> return 0
-		Just ataque -> do
-				resultado <- calculaAcerto (accuracy ataque)
-			        critical <- calculaCritico (critical ataque)	
-				if (not resultado || (currentHp atacante) == 0)
-					then return 0
-					else do let atq = if (category ataque) == "Physical" then (fAtk (pkmn atacante)) else (sAtk (pkmn atacante))
-						    def = if (category ataque) == "Physical" then (fDef (pkmn alvo)) else (sDef (pkmn alvo))
-	    			       	    	    stab = if ((typing ataque) == (tipo1 (pkmn atacante)) || (typing ataque) == (tipo2 (pkmn atacante))) then 1.5 else 1.0
-	      			            	    efficiency = eficiencia (typing ataque) (tipo1 (pkmn alvo)) (tipo2 (pkmn alvo))
-	      			            	    condicaoNegativa = if (((condition atacante) == "Queimando" || (condition atacante) == "Congelado") 
-										&& (category ataque) == "Fisico") then 0.5 
-								       else if (((condition atacante) == "Envenenado" || (condition atacante) == "Paralisado") 
-										&& (category ataque) == "Fisico") then 0.5
-								       else if ((condition atacante) == "Sonolento") then 0.75
-								       else 1.0
-						    dano = if (critical) then calculaDano (power ataque) atq def stab efficiency condicaoNegativa 1.5
-								         else calculaDano (power ataque) atq def stab efficiency condicaoNegativa 1.0    
-						return dano
-	where ataque = pegaAtaque atacante numAtaque
-
 
 calculaDano :: Int -> Int -> Int -> Double -> Double -> Double -> Double -> Int
 calculaDano poder ataque defesa stab tipo burn critico =
@@ -386,4 +373,3 @@ geraPokemonsUsuario pokemons = do
 		pkmnBattle <- generatePokemon pokemon
 		lista <- geraPokemonsUsuario (tail pokemons)
 		return ([pkmnBattle] ++ lista)	
-

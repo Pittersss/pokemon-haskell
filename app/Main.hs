@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings, OverloadedLabels, OverloadedRecordDot, ImplicitParams #-}
+{-# LANGUAGE OverloadedStrings, OverloadedLabels, OverloadedRecordDot, ImplicitParams, BlockArguments #-}
 module Main where
 
 
@@ -6,6 +6,7 @@ import Control.Monad (void)
 import Pokemon
 import ChoicePokemon
 import Data.Int
+import Historico
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import qualified GI.Gio as Gio
@@ -56,7 +57,7 @@ choicePokemonInterfaceW app = do
     ]
 
   bgImage <- new Gtk.Image [
-      #file   := "/images/background2.jpg",
+      #file   := "images/background2.jpg",
       #name   := "image",
       #hexpand:= True,
       #vexpand:= True
@@ -163,7 +164,7 @@ choicePokemonInterface app w = do
     ]
 
   bgImage <- new Gtk.Image [
-      #file   := "/images/background2.jpg",
+      #file   := "images/background2.jpg",
       #name   := "image",
       #hexpand:= True,
       #vexpand:= True
@@ -359,13 +360,6 @@ infoBtl usuPkmn enPkmn itens = do
 	putStrLn $ "Condição: " ++ (condition usuPkmn)
 	putStrLn ""
 
-pickAttack :: PokemonBattle -> Int -> String
-pickAttack pokemon numAtk = 
-    if (numAtk == 1) then (name (atk1 pokemon))
-    else if (numAtk == 2) then (name (atk2 pokemon))
-    else if (numAtk == 3) then (name (atk3 pokemon))
-    else name (atk4 pokemon)
-
 imprimeAtaques :: PokemonBattle -> IO ()
 imprimeAtaques pokemon = do
 	putStrLn $ "=============================="
@@ -375,6 +369,12 @@ imprimeAtaques pokemon = do
 	putStrLn $ (("4." ++ (attack4 (pkmn pokemon))) ++ ", ") ++ (show (pp (atk4 pokemon)) ++ "/" ++ show (maxPP (atk4 pokemon)))
         putStrLn $ "=============================="
 
+pickAttack :: PokemonBattle -> Int -> String
+pickAttack pokemon numAtk = 
+	if (numAtk == 1) then (name (atk1 pokemon))
+	else if (numAtk == 2) then (name (atk2 pokemon))
+	else if (numAtk == 3) then (name (atk3 pokemon))
+	else name (atk4 pokemon)
 
 batalhaI :: [PokemonBattle] -> [PokemonBattle] -> [String] -> Gtk.Application -> IO ()
 batalhaI usuPkmns enPkmns rivais app = do
@@ -382,16 +382,27 @@ batalhaI usuPkmns enPkmns rivais app = do
 	let fullRestores = Item {nomeItem = "Full Restore", qtde = 5}
 	let listaItens = [hyperPotions, fullRestores]
 	batalha usuPkmns enPkmns rivais listaItens app
-  --putStrLn("Acabou a partida!")
 
 batalha :: [PokemonBattle] -> [PokemonBattle] -> [String] -> [Item] -> Gtk.Application -> IO ()
 batalha usuPkmns enPkmns rivais itens app
-	|null usuPkmns = do
-		--putStrLn("Você perdeu, tente novamente")
-    choicePokemonInterfaceW app
-	| null enPkmns = do
-		--putStrLn("Você agora você é o campeão da Elite 4")
-    Gio.applicationQuit app
+	| null usuPkmns = 
+    (do
+      saveData <- carregaOuCriaSave
+      let newDataLoss = incrementaDerrota saveData
+      writeSave newDataLoss
+      output <- getEstatisticas
+      putStrLn output
+      putStrLn $ "Você perdeu, tente novamente"
+      choicePokemonInterfaceW app)
+	| null enPkmns = 
+    (do
+      saveData <- carregaOuCriaSave
+      let newDataWin = incrementaVitoria saveData
+      writeSave newDataWin
+      output <- getEstatisticas
+      putStrLn output
+      putStrLn $ "Você agora você é o campeão da Elite 4"
+      Gio.applicationQuit app)
 	| currentHp (head usuPkmns) <= 0 = do
 		putStrLn $ "Seu pokemon desmaiou, se houver um próximo pokemon, ele entrará no lugar"
 		batalha (tail usuPkmns) enPkmns rivais itens app
@@ -401,7 +412,7 @@ batalha usuPkmns enPkmns rivais itens app
 	| otherwise = do
 		infoBtl (head usuPkmns) (head enPkmns) itens	
 		putStrLn $ "O que você deseja fazer?"
-		putStrLn $ "1. Usar uma Hyper Potion, 2. Usar um Full Restore ou 3. Atacar"
+		putStrLn $ "1. Usar uma Hyper Potion, 2. Usar um Full Restore, 3. Atacar ou 4. Trocar o pokemon atual pelo próximo"
 		decision <- readLn :: IO Int
 		melhorAtaque <- escolheMelhorAtaque (head enPkmns) (head usuPkmns)
 		if decision == 1
@@ -434,7 +445,16 @@ batalha usuPkmns enPkmns rivais itens app
 				else do
 					putStrLn "Acabaram os Full Restore. Faça outra coisa"
 					batalha usuPkmns enPkmns rivais itens app
-		else do
+		else if (decision == 4 && length usuPkmns > 1)
+			then do
+				let listUsu = (drop 1 usuPkmns) ++ [head usuPkmns]
+				putStrLn $ "Seu pokemon atual sairá e entrará em seu lugar o próximo: " ++ (nome (pkmn (head listUsu)))
+				(novoAtacante, novoAlvo) <- realizaAtaque (head enPkmns) (head listUsu) melhorAtaque
+				let newListUsu = [novoAlvo] ++ (tail listUsu)
+				let newListEn = [novoAtacante] ++ (tail enPkmns)
+				batalha newListUsu newListEn rivais itens app
+		else if (decision == 3) 
+			then do
 			putStrLn $ ""
 			putStrLn $ "Qual ataque você deseja usar? "
 			imprimeAtaques (head usuPkmns)
@@ -471,6 +491,9 @@ batalha usuPkmns enPkmns rivais itens app
 			else do 
 				putStrLn $ "Entrada inválida"
 				batalha usuPkmns enPkmns rivais itens app
+		else do
+			putStrLn $ "Entrada inválida"
+			batalha usuPkmns enPkmns rivais itens app
 
 --Inicio da Aplicação
 activate :: Gtk.Application -> IO ()
