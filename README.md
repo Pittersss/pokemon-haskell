@@ -21,7 +21,7 @@ Após a instalação execute no seu cmd:<br>
 ghcup install cabal latest
 ghcup set cabal latest<br>
 #### Linux
-sudo apt update
+sudo apt update<br>
 sudo apt install cabal-install
 <br>
 #### MacOs
