@@ -41,4 +41,5 @@ brew install cabal-install
 
 ### Abra o diretório do projeto e execute:
 cabal update<br>
+cabal install --only-dependencies<br>
 cabal run
