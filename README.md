@@ -28,5 +28,5 @@ sudo apt install cabal-install
 brew install cabal-install
 
 ### Abra o diretório do projeto e execute:
-cabal update
+cabal update<br>
 cabal run
